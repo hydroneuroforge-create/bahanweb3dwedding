@@ -307,15 +307,13 @@ export const BAB = [
     id: 'acara', judul: 'Hari Bahagia', durasi: 3.8, waktu: 'emasDalam',
     latar: P9('pelaminan'),
     lapisan: [
-      { potongan: 'gong', uv: [0.5, 0.97], maju: 14, tinggi: 9,
-        gerak: [{ t: [0.54, 0.62], dari: { o: 0, y: -1 }, ke: { o: 1, y: 0 } }, { t: [0.76, 0.82], ke: { o: 0 } }] },
       { jenis: 'sinar', pos: [6, 14, -28], ukuran: [20, 44], kekuatan: 0.35, rz: -0.35 }
     ],
     kamera: [
       { t: 0.05, uv: [0.5, 0.42], jarak: 56 },
-      { t: 0.3, uv: [0.5, 0.56], jarak: 48, geser: [-1, 0] },
-      { t: 0.55, uv: [0.5, 0.58], jarak: 46, geser: [1, 0] },
-      { t: 0.75, uv: [0.5, 0.62], jarak: 46 },
+      { t: 0.3, uv: [0.5, 0.5], jarak: 48, geser: [-1, 0] },
+      { t: 0.55, uv: [0.5, 0.52], jarak: 46, geser: [1, 0] },
+      { t: 0.75, uv: [0.5, 0.52], jarak: 48 },
       { t: 0.92, uv: [0.5, 0.36], jarak: 50 }
     ],
     efek: { kelopak: 0.8, kilau: 0.9 },

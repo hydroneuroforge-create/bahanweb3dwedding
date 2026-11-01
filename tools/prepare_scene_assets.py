@@ -12,6 +12,7 @@ Perintah:
           Menghapus latar dengan model ISNet lalu memotong ke area objek.
           --white : gabungkan dengan kunci warna putih (untuk latar putih polos).
   Opsi --putar 90 memutar gambar yang tersimpan miring (berlawanan jarum jam).
+  Opsi --ratakan-orang (depth) meratakan kedalaman tokoh -> WAJIB untuk adegan bertokoh.
           Dipakai untuk lapisan objek & tokoh (kode L dan C).
 
 Model diunduh otomatis ke ~/.cache/undangan-models (±280 MB, sekali saja).
@@ -89,6 +90,15 @@ def cmd_depth(args):
     w = min(args.width, img.width)
     img = img.resize((w, round(img.height * w / img.width)), Image.LANCZOS)
     d = estimate_depth(img)
+    if args.ratakan_orang:
+        # Tokoh (objek utama menurut ISNet) dibuat datar: wajah & tubuh tidak ikut melengkung saat kamera bergerak
+        m = isnet_mask(img)
+        m = np.asarray(Image.fromarray((m * 255).astype(np.uint8)).resize((d.shape[1], d.shape[0]), Image.BILINEAR), np.float32) / 255
+        inti = m > 0.5
+        if inti.any():
+            nilai = float(np.percentile(d[inti], 70))
+            halus = np.asarray(Image.fromarray((m * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(3)), np.float32) / 255
+            d = d * (1 - halus) + nilai * halus
     dimg = Image.fromarray((d * 255).astype(np.uint8)).resize(img.size, Image.BICUBIC)
     # haluskan agar mesh tidak bergerigi, tetapi tepi objek tetap tegas
     # dilatasi: tepi objek depan "melebar" sedikit agar regangan jatuh di area latar (tidak terlihat)
@@ -151,6 +161,7 @@ def main():
     d.add_argument("src"); d.add_argument("out")
     d.add_argument("--width", type=int, default=1440); d.add_argument("--quality", type=int, default=80)
     d.add_argument("--putar", type=int, default=0, help="putar N derajat berlawanan jarum jam (90/180/270)")
+    d.add_argument("--ratakan-orang", action="store_true", help="ratakan kedalaman tokoh agar wajah tidak penyok")
     d.set_defaults(fn=cmd_depth)
     c = sub.add_parser("cutout")
     c.add_argument("src"); c.add_argument("out")

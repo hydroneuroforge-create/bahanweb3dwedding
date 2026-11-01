@@ -510,3 +510,6 @@ select.field__input {
   }
   :root { --lebar-isi: min(62.5vh - 2.5rem, 440px); }
 }
+
+/* Huruf script (Great Vibes) punya lengkungan yang keluar dari kotak huruf; beri ruang agar warna emas tidak terpotong */
+.nama-besar, .sampul__nama { display: inline-block; padding: .12em .45em .22em; margin: -.12em -.45em -.22em; line-height: 1.2; overflow: visible; }
