@@ -125,6 +125,8 @@ const naskah = {
       this.bab.set(sec.dataset.bab, { sec, daftar });
     });
     this.judul = $('#judul-bab');
+    this.tirai = $('#tirai');
+    this.nilaiTirai = -1;
     this.isiKemajuan = $('#kemajuan-isi');
     this.babAktif = null;
     dunia.padaFrame((s, P) => this.perbarui(s, P, dunia));
@@ -154,6 +156,14 @@ const naskah = {
         d.n.classList.toggle('is-aktif', k > 0.6);
       });
     });
+
+    // Tirai batik: menutup menjelang akhir bab dan membuka di awal bab berikutnya
+    const kt = P.jenis && P.jenis.jenis === 'tirai' ? Math.round(P.tirai * 1000) / 1000 : 0;
+    if (kt !== this.nilaiTirai) {
+      this.nilaiTirai = kt;
+      this.tirai.style.setProperty('--t', kt);
+      this.tirai.classList.toggle('is-tampil', kt > 0.002);
+    }
 
     if (this.babAktif !== id) {
       this.babAktif = id;

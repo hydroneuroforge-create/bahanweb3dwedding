@@ -917,6 +917,17 @@ export class Dunia {
     // Layar lebar: kamera dimajukan agar gambar latar tetap memenuhi lebar layar
     const tanSetengah = Math.tan(THREE.MathUtils.degToRad(SUSUNAN.fov) / 2);
     return (b.kamera || []).map((k) => {
+      // Fokus ke tokoh: jarak dihitung agar tokoh mengisi bagian layar (isi = 0..1 tinggi layar)
+      if (k.fokus !== undefined && b.lapisan[k.fokus] && b.lapisan[k.fokus].pos) {
+        const l = b.lapisan[k.fokus];
+        const h = l.tinggi;
+        const jarak = h / ((k.isi || 0.6) * 2 * tanSetengah);
+        const g = k.geser || [0, 0];
+        const cx = l.pos[0];
+        const cy = l.pos[1] + h / 2 + h * (k.naik || 0) + (k.dy || 0);
+        const cz = l.pos[2] + (k.dz || 0);
+        return { t: k.t, pos: new THREE.Vector3(cx + g[0], cy + g[1], cz + jarak), lihat: new THREE.Vector3(cx, cy, cz) };
+      }
       if (k.uv && latar) {
         const { W, H } = latar.userData;
         const jarakMaks = (W * 0.9) / (2 * tanSetengah * Math.max(this.camera.aspect, 0.3));
@@ -1074,7 +1085,7 @@ export class Dunia {
     const tm = this.tirai.material.uniforms;
     tm.uKemajuan.value = P.tirai;
     if (P.jenis) { tm.uMode.value = MODE_TIRAI[P.jenis.jenis] ?? 0; tm.uWarna.value.set(P.jenis.warna); }
-    this.tirai.visible = P.tirai > 0.001;
+    this.tirai.visible = P.tirai > 0.001 && !!P.jenis && P.jenis.jenis in MODE_TIRAI;
   }
 
   gerakkanLapisan(o, t) {

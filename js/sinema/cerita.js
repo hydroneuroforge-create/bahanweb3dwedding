@@ -170,7 +170,10 @@ const HANGAT = { tint: [1.04, 0.98, 0.9], lift: [0.01, 0, 0], saturasi: 1.02 };
    cermin: true -> dibalik kiri-kanan
    efek  : kelopak, kilau, kunang, lampion, burung, kembangApi (0..1)
    suara : burung, air, jangkrik (0..1)
-   transisi: 'kabut' | 'cahaya' | 'malam' */
+   kamera: titik kunci boleh memakai { t, fokus: N, isi, naik, dy, dz, geser } untuk menyorot
+           lapisan ke-N (indeks di array lapisan) sehingga tokoh mengisi "isi" (0..1) tinggi layar.
+           naik = geser titik pandang ke atas (× tinggi tokoh) agar tokoh berada di bagian bawah layar.
+   transisi: 'tirai' (tirai batik + gunungan, bawaan) | 'kabut' | 'cahaya' | 'malam' */
 export const BAB = [
   {
     id: 'gerbang', judul: 'Gerbang Keraton', durasi: 2.4, waktu: 'fajarEmas',
@@ -190,7 +193,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.9, kilau: 0.6, burung: 0.4 },
     suara: { burung: 0.8, air: 0.2 },
-    transisi: { jenis: 'cahaya', warna: '#FFE6B4' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // Fajar di kampung: kamera turun dari langit menuju desa, nama mempelai di langit
@@ -211,7 +214,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.5, burung: 0.9, kilau: 0.35 },
     suara: { burung: 1, air: 0.45 },
-    transisi: { jenis: 'kabut', warna: '#FFF3E6' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // Jalan desa: kamera berjalan menyusuri lorong kampung, ayat suci muncul
@@ -231,41 +234,41 @@ export const BAB = [
     ],
     efek: { kelopak: 0.8, kilau: 0.4 },
     suara: { burung: 0.9, air: 0.2 },
-    transisi: { jenis: 'kabut', warna: '#FFF6EC' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // Kisah 2023: klinik terapi anak tempat mereka bertemu
     id: 'klinik', judul: 'Awal Bertemu', durasi: 2.8, waktu: 'ruangTerang',
     latar: { gambar: 'klinik', z: -40, tinggi: 60, kedalaman: 10, warna: HANGAT },
     lapisan: [
-      { potongan: 'terapis', uv: [0.52, 0.86], maju: 3, tinggi: 15,
-        gerak: [{ t: [0.12, 0.34], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] },
+      { potongan: 'terapis', uv: [0.52, 0.9], maju: 8, tinggi: 15,
+        gerak: [{ t: [0.1, 0.3], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] },
       { jenis: 'sinar', pos: [-8, 12, -30], ukuran: [20, 40], kekuatan: 0.42, rz: 0.4 }
     ],
     kamera: [
-      { t: 0.08, uv: [0.5, 0.3], jarak: 54 },
-      { t: 0.5, uv: [0.5, 0.56], jarak: 46 },
-      { t: 0.92, uv: [0.5, 0.7], jarak: 40 }
+      { t: 0.06, uv: [0.5, 0.3], jarak: 56 },
+      { t: 0.45, fokus: 0, isi: 0.5, naik: 0.34, geser: [-1.5, 0] },
+      { t: 0.94, fokus: 0, isi: 0.64, naik: 0.32, geser: [1, 0] }
     ],
     efek: { kilau: 0.5, kelopak: 0.2 },
     suara: { burung: 0.25 },
-    transisi: { jenis: 'cahaya', warna: '#FFF0D8' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // 2023–2026: berjalan bersama di pematang sawah
     id: 'sawah', judul: 'Saling Menguatkan', durasi: 2.6, waktu: 'siangHangat',
     latar: { gambar: 'sawah', z: -40, tinggi: 60, kedalaman: 14, warna: NORMAL },
     lapisan: [
-      { potongan: 'jalan', uv: [0.47, 0.72], maju: 2, tinggi: 9,
-        gerak: [{ t: [0.05, 0.25], dari: { o: 0 }, ke: { o: 1 } }, { t: [0.25, 1], ke: { y: 2.5, z: -6 } }] }
+      { potongan: 'jalan', uv: [0.48, 0.86], maju: 12, tinggi: 10,
+        gerak: [{ t: [0.04, 0.2], dari: { o: 0 }, ke: { o: 1 } }, { t: [0.2, 1], ke: { y: 3, z: -12, x: 0.6 } }] }
     ],
     kamera: [
-      { t: 0.06, uv: [0.5, 0.5], jarak: 56 },
-      { t: 0.94, uv: [0.5, 0.56], jarak: 44 }
+      { t: 0.04, fokus: 0, isi: 0.66, naik: 0.3 },
+      { t: 0.95, fokus: 0, isi: 0.66, naik: 0.3, dz: -6, dy: 2.2 }
     ],
     efek: { kelopak: 0.5, burung: 1, kilau: 0.3 },
     suara: { burung: 1, air: 0.6 },
-    transisi: { jenis: 'kabut', warna: '#FFF0DC' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // 15 Agustus 2026: lamaran di teras rumah keluarga
@@ -282,7 +285,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.9, kilau: 0.7 },
     suara: { burung: 0.4 },
-    transisi: { jenis: 'cahaya', warna: '#FFE2A6' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // Menuju halal: alun-alun keraton dengan beringin kembar
@@ -298,7 +301,7 @@ export const BAB = [
     ],
     efek: { burung: 1, kelopak: 0.5, kilau: 0.4 },
     suara: { burung: 0.8 },
-    transisi: { jenis: 'cahaya', warna: '#FFF0D0' }
+    transisi: { jenis: 'tirai' }
   },
   {
     id: 'mempelai', judul: 'Mempelai', durasi: 3.2, waktu: 'emasDalam',
@@ -312,7 +315,7 @@ export const BAB = [
     ],
     efek: { kilau: 0.9, kelopak: 0.3 },
     suara: { burung: 0.2 },
-    transisi: { jenis: 'cahaya', warna: '#FFE2A6' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // Pelaminan: mempelai berdiri di depan gebyok, gong muncul saat hitung mundur
@@ -334,7 +337,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.7, kilau: 0.8 },
     suara: { burung: 0.2 },
-    transisi: { jenis: 'kabut', warna: '#FFD9B0' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // Galeri: lorong lampion keraton, foto berbingkai emas melayang di sepanjang lorong
@@ -348,7 +351,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.4, lampion: 0.25, kilau: 0.6 },
     suara: { air: 0.15 },
-    transisi: { jenis: 'kabut', warna: '#E6A88C' }
+    transisi: { jenis: 'tirai' }
   },
   {
     id: 'senja', judul: 'Doa & Tanda Kasih', durasi: 3.6, waktu: 'senjaUngu',
@@ -363,20 +366,20 @@ export const BAB = [
     ],
     efek: { kunang: 1, kilau: 0.3, lampion: 0.12 },
     suara: { jangkrik: 0.7, air: 0.7 },
-    transisi: { jenis: 'malam', warna: '#141936' }
+    transisi: { jenis: 'tirai' }
   },
   {
     // Penutup: malam penuh lampion, mempelai melepas lampion bersama
     id: 'penutup', judul: 'Terima Kasih', durasi: 3.4, waktu: 'malam',
     latar: { gambar: 'malam', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL },
     lapisan: [
-      { potongan: 'lepasLampion', uv: [0.5, 0.9], maju: 3, tinggi: 14, cahaya: 0.85,
+      { potongan: 'lepasLampion', uv: [0.5, 0.92], maju: 8, tinggi: 14, cahaya: 0.85,
         gerak: [{ t: [0.06, 0.3], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] }
     ],
     kamera: [
-      { t: 0.06, uv: [0.5, 0.18], jarak: 56 },
-      { t: 0.45, uv: [0.5, 0.56], jarak: 50 },
-      { t: 1.0, uv: [0.5, 0.42], jarak: 52 }
+      { t: 0.04, uv: [0.5, 0.18], jarak: 56 },
+      { t: 0.5, fokus: 0, isi: 0.58, naik: 0.33 },
+      { t: 1.0, fokus: 0, isi: 0.6, naik: 0.36, geser: [0, 0.8] }
     ],
     efek: { lampion: 1, kembangApi: 1, kunang: 0.5, kilau: 0.4 },
     suara: { jangkrik: 1 },

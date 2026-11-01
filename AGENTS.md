@@ -166,9 +166,10 @@ Setiap bab terdiri dari:
 - `latar` : gambar latar + peta kedalaman → mesh 3D (parallax nyata). `warna` bisa mewarnai ulang (mis. `MALAM`).
 - `lapisan`: objek di depan latar: `potongan` (gambar transparan), `jenis: 'kabut'`, `jenis: 'sinar'`. Bisa diberi `gerak`.
 - `kamera`: titik kunci `{ t, pos, lihat }` atau `{ t, uv, jarak, geser }` (lihat komentar di atas `cerita.js`).
+  Untuk menyorot tokoh pakai `{ t, fokus: N, isi: 0.6, naik: 0.3 }` (N = indeks lapisan). `isi` = bagian tinggi layar yang diisi tokoh. **Mempelai minimal `isi` 0.55** agar tidak terlihat kecil (permintaan pemilik).
 - `efek` : `kelopak`, `kilau`, `kunang`, `lampion`, `burung`, `kembangApi` (0..1).
 - `suara`: `burung`, `air`, `jangkrik` (0..1).
-- `transisi`: `kabut` | `cahaya` | `malam` ke bab berikutnya.
+- `transisi`: **`tirai`** (bawaan: dua kain batik dengan setengah gunungan yang menutup lalu membuka; elemen `#tirai` di `index.html`). Jenis `kabut` | `cahaya` | `malam` masih tersedia, tetapi **pemilik menilai terlalu terang**, jadi jangan dipakai kecuali diminta.
 
 ### Menambah gambar adegan baru (dari `docs/PROMPT_GAMBAR.md`)
 Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow numpy onnxruntime`.

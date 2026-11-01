@@ -461,3 +461,34 @@ select.field__input {
 .dunia, .naskah { transition: opacity .32s ease; }
 .is-lompat .dunia, .is-lompat .naskah { opacity: 0; }
 .dialog-terbuka, .dialog-terbuka body { overflow: hidden; }
+
+/* ===================== TIRAI TRANSISI (batik + gunungan) =====================
+   --t: 0 = terbuka penuh, 1 = tertutup penuh (diatur main.js mengikuti gulir) */
+.tirai { --t: 0; position: fixed; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; visibility: hidden; }
+.tirai.is-tampil { visibility: visible; }
+.tirai__kain {
+  position: absolute; top: 0; bottom: 0; width: 50.5%;
+  background:
+    linear-gradient(180deg, rgba(42, 14, 14, .55), rgba(42, 14, 14, .25) 40%, rgba(42, 14, 14, .65)),
+    url("../assets/images/batik_pattern.webp") center / 260px repeat,
+    var(--maroon);
+  background-blend-mode: normal, multiply, normal;
+  will-change: transform;
+}
+.tirai__kain::before { /* lipatan kain */
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, .22) 0 2px, rgba(255, 255, 255, .04) 18px, rgba(0, 0, 0, .18) 42px);
+  mix-blend-mode: multiply;
+}
+.tirai__kain--kiri { left: 0; transform: translate3d(calc((var(--t) - 1) * 105%), 0, 0); box-shadow: inset -3px 0 0 var(--gold), inset -9px 0 0 rgba(42, 14, 14, .9), inset -10.5px 0 0 rgba(212, 175, 55, .6), 18px 0 40px rgba(0, 0, 0, .45); }
+.tirai__kain--kanan { right: 0; transform: translate3d(calc((1 - var(--t)) * 105%), 0, 0); box-shadow: inset 3px 0 0 var(--gold), inset 9px 0 0 rgba(42, 14, 14, .9), inset 10.5px 0 0 rgba(212, 175, 55, .6), -18px 0 40px rgba(0, 0, 0, .45); }
+/* Setengah gunungan menempel di tepi dalam tiap kain; bertemu jadi satu gunungan utuh saat tertutup */
+.tirai__gunungan {
+  --tinggi: min(74vh, 128vw);
+  position: absolute; top: 50%; width: calc(var(--tinggi) * .3117); height: var(--tinggi);
+  transform: translateY(-50%);
+  background: url("../assets/scenes/l1_gunungan.webp") no-repeat; background-size: 200% 100%;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, .55));
+}
+.tirai__kain--kiri .tirai__gunungan { right: 0; background-position: left center; }
+.tirai__kain--kanan .tirai__gunungan { left: 0; background-position: right center; }
