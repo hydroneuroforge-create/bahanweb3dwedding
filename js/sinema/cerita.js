@@ -235,11 +235,13 @@ export const BAB = [
     lapisan: [],
     kamera: [
       { t: 0.05, uv: [0.5, 0.4], jarak: 56 },
-      { t: 0.9, uv: [0.5, 0.48], jarak: 40 }
+      { t: 0.5, uv: [0.5, 0.48], jarak: 46 },
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T04
     ],
     efek: { kelopak: 0.5, kilau: 0.4 },
     suara: { burung: 0.7 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.5] } // masuk lewat pintu klinik yang terbuka
+    transisi: { jenis: 'tembus', ke: [0.5, 0.5] }, // masuk lewat pintu klinik yang terbuka
+    klip: { src: 'assets/video/transisi/t04.mp4', panjang: 4.2 } // video Flow: naik tangga -> daun pintu ukir -> ruang klinik
   },
   {
     id: 'klinik', judul: 'Awal Bertemu', durasi: 3, waktu: 'ruangTerang',
@@ -248,7 +250,7 @@ export const BAB = [
       { jenis: 'sinar', pos: [0, 10, -30], ukuran: [18, 40], kekuatan: 0.4, rz: 0.15 }
     ],
     kamera: [
-      { t: 0.05, uv: [0.5, 0.45], jarak: 56 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T04
       { t: 0.5, uv: [0.56, 0.5], jarak: 50, geser: [-0.8, 0] },
       { t: 0.9, uv: [0.57, 0.52], jarak: 44, geser: [0.6, 0] }
     ],
