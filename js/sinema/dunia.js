@@ -26,6 +26,8 @@ import { SUSUNAN, LATAR, POTONGAN, WAKTU, BAB, GALERI } from './cerita.js';
 const clamp = (v, a = 0, b = 1) => Math.min(Math.max(v, a), b);
 const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0)); return t * t * (3 - 2 * t); };
+// Panjang ruang gulir video transisi sesudah bab (0 bila bab tidak memakai klip)
+const panjangKlip = (b) => (b.klip ? b.klip.panjang : 0);
 const damp = (a, b, lambda, dt) => a + (b - a) * (1 - Math.exp(-lambda * dt));
 const rand = (() => { let s = 20261226; return () => ((s = (s * 16807) % 2147483647) / 2147483647); })();
 
@@ -770,7 +772,8 @@ export class Dunia {
 
     // Struktur bab: mulai & durasi dalam satuan gulir
     let mulai = 0;
-    this.bab = BAB.map((b, i) => { const o = { ...b, indeks: i, mulai }; mulai += b.durasi; return o; });
+    // Bab dengan "klip" mendapat ruang gulir tambahan sesudahnya untuk memutar video transisi
+    this.bab = BAB.map((b, i) => { const o = { ...b, indeks: i, mulai }; mulai += b.durasi + panjangKlip(b); return o; });
     this.total = mulai;
 
     this.gulirTarget = 0;
@@ -1063,7 +1066,7 @@ export class Dunia {
     const kb = j >= n - 1 ? K[n - 1].kabur : (t <= K[0].t ? K[0].kabur : K[j].kabur + (K[j + 1].kabur - K[j].kabur) * smooth(0, 1, (t - K[j].t) / (K[j + 1].t - K[j].t)));
     this._kabur = kb || 0;
     const ke = b.transisi && b.transisi.ke;
-    if (ke && t > K[n - 1].t && (b.latarObj || Array.isArray(ke[0]))) {
+    if (ke && !b.klip && t > K[n - 1].t && (b.latarObj || Array.isArray(ke[0]))) {
       // Terbang masuk ke titik jembatan (pintu/jendela/jalan) lalu menembusnya
       b._titikKe ||= Array.isArray(ke[0]) ? new THREE.Vector3(...ke[0]) : this.titikUV(b, ke);
       const akhir = K[n - 1];
@@ -1122,17 +1125,29 @@ export class Dunia {
   hitungPosisi(s) {
     const B = this.bab;
     let i = B.length - 1;
-    for (let k = 0; k < B.length; k++) { if (s < B[k].mulai + B[k].durasi) { i = k; break; } }
-    const b = B[i];
+    for (let k = 0; k < B.length; k++) { if (s < B[k].mulai + B[k].durasi + panjangKlip(B[k])) { i = k; break; } }
+    let b = B[i];
+    // Di ruang klip: video transisi menutupi layar. Paruh pertama bab lama tetap aktif, paruh kedua bab baru.
+    const akhirBab = b.mulai + b.durasi;
+    if (b.klip && i < B.length - 1 && s >= akhirBab) {
+      const k = clamp((s - akhirBab) / b.klip.panjang, 0, 1);
+      const nx = B[i + 1];
+      const dulu = k < 0.5;
+      return {
+        i: dulu ? i : i + 1, b: dulu ? b : nx, t: dulu ? 1 : 0,
+        lain: dulu ? nx : b, tLain: dulu ? 0 : 1, campur: dulu ? k : 1 - k,
+        tirai: 0, jenis: null, klip: { bab: b, k }
+      };
+    }
     const t = clamp((s - b.mulai) / b.durasi, 0, 1.2);
     const w = SUSUNAN.lebarTransisi;
     let lain = null, campur = 0, tirai = 0, jenis = null;
     const keAkhir = b.mulai + b.durasi - s;
     const dariAwal = s - b.mulai;
-    if (i < B.length - 1 && keAkhir < w && b.transisi) {
+    if (i < B.length - 1 && keAkhir < w && b.transisi && !b.klip) {
       const k = 1 - keAkhir / w;
       lain = B[i + 1]; campur = 0.5 * k; tirai = smooth(0, 1, k); jenis = b.transisi;
-    } else if (i > 0 && dariAwal < w && B[i - 1].transisi) {
+    } else if (i > 0 && dariAwal < w && B[i - 1].transisi && !B[i - 1].klip) {
       const k = 1 - dariAwal / w;
       lain = B[i - 1]; campur = 0.5 * k; tirai = smooth(0, 1, k); jenis = B[i - 1].transisi;
     }
@@ -1226,6 +1241,19 @@ export class Dunia {
         awal: lainSesudah ? b : lain, akhir: lainSesudah ? lain : b,
         kamAwal: lainSesudah ? this.camera : this.kameraLain, kamAkhir: lainSesudah ? this.kameraLain : this.camera,
         m: lainSesudah ? P.campur : 1 - P.campur
+      };
+    }
+    // Ruang klip: bila video belum siap, adegan dicampur pelan sebagai cadangan.
+    // Bila video siap, cukup render satu adegan di bawahnya (hemat GPU).
+    if (P.klip && P.lain && !P.klip.bab._klipSiap) {
+      const lain = P.lain;
+      lain.lapisanObj.forEach((o) => this.gerakkanLapisan(o, P.tLain));
+      this.kameraUntuk(lain, P.tLain, this.kameraLain);
+      const sesudah = lain.indeks > b.indeks;
+      this.tembus = {
+        awal: sesudah ? b : lain, akhir: sesudah ? lain : b,
+        kamAwal: sesudah ? this.camera : this.kameraLain, kamAkhir: sesudah ? this.kameraLain : this.camera,
+        m: smooth(0.2, 0.8, P.klip.k)
       };
     }
 

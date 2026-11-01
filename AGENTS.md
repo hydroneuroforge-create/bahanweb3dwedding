@@ -220,3 +220,20 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
 - Jangan menambah jumlah partikel di `dunia.js` tanpa uji kinerja. Mesin otomatis menurunkan resolusi & mematikan bloom bila fps < 42.
 - Formulir & daftar ucapan selalu di dalam `<dialog>`; gulir halaman dikunci saat dialog terbuka. Jangan pindahkan formulir ke luar dialog.
 - Gambar baru dibuat **berurutan dengan gambar sebelumnya sebagai referensi**, mengikuti `docs/PROMPT_GAMBAR.md` versi 3 (gambar v3 → `bahan web 3d/v3/`). Bila tokoh sudah tergambar di dalam latar (v3), cukup pakai `depth` — tidak perlu potongan tokoh terpisah.
+- Untuk latar yang memuat tokoh, buat peta kedalaman dengan `--ratakan-orang` agar wajah tidak tampak penyok saat kamera bergerak.
+
+### Klip transisi video (Google Flow)
+- Prompt & pasangan frame: `docs/PROMPT_TRANSISI_FLOW.md` dan `bahan web 3d/flow-transisi/TNN_*/` (`1_AWAL.jpg`, `2_AKHIR.jpg`).
+  Hasil mentah dari Flow diunggah ke `bahan web 3d/flow-transisi/` (tidak dipakai langsung oleh website).
+- Klip siap pakai ada di `assets/video/transisi/tNN.mp4`: 720×1280, H.264, tanpa audio, GOP pendek agar lancar di-seek:
+  ```bash
+  ffmpeg -i "bahan web 3d/flow-transisi/T01_xxx.mp4" -vf scale=720:1280 -c:v libx264 -preset slow -crf 27 \
+    -pix_fmt yuv420p -g 4 -keyint_min 4 -sc_threshold 0 -movflags +faststart -an assets/video/transisi/t01.mp4
+  ```
+- Bila satu klip first/last frame selalu glitch (posisi kamera dua adegan terlalu berbeda), buat dua klip dengan start frame saja
+  yang sama-sama berakhir di benda penutup layar (daun, kabut). Klip B dibalik lalu disambung (`reverse` + `xfade`), seperti `t02.mp4`.
+- Pasang di bab asal: `klip: { src, panjang }` di `cerita.js`. `panjang` = ruang gulir tambahan ≈ 0,3 × durasi video (detik).
+  Video diputar mengikuti gulir (`main.js` → `klip`), diunduh sebagai blob satu bab sebelum dibutuhkan.
+  Bila gagal termuat, `dunia.js` mencampur kedua adegan sebagai cadangan. Transisi `tembus` di bab itu otomatis tidak dipakai.
+- Kamera di akhir bab asal dan di awal bab tujuan harus memperlihatkan **gambar utuh** (`uv: [0.5, 0.5], jarak: 70`)
+  agar sama dengan frame awal/akhir klip.

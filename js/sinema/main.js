@@ -275,12 +275,77 @@ const suara = {
   alih() { this.setNyala(!this.nyala); }
 };
 
+/* ===================== 5b. KLIP TRANSISI (video Google Flow) =====================
+   Video diputar mengikuti gulir di ruang klip antar bab (lihat "klip" di cerita.js).
+   Video dimuat satu bab sebelum dibutuhkan; bila belum siap, dunia.js memakai campuran adegan. */
+const klip = {
+  daftar: [],
+  pasang(dunia) {
+    const wadah = $('#klip-transisi');
+    dunia.bab.forEach((b) => {
+      if (!b.klip) return;
+      const v = el('video');
+      v.muted = true; v.playsInline = true; v.preload = 'none';
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+      v.addEventListener('loadeddata', () => { b._klipSiap = true; });
+      v.addEventListener('error', () => { b._klipSiap = false; v.remove(); });
+      wadah.append(v);
+      this.daftar.push({ b, v, dimuat: false, tampil: -1 });
+    });
+    dunia.padaFrame((s, P) => this.perbarui(P));
+  },
+  // Video diunduh utuh lalu diputar dari blob: selalu bisa di-seek, apa pun servernya (mis. tanpa Range)
+  async muat(d) {
+    if (d.dimuat) return;
+    d.dimuat = true;
+    try {
+      const r = await fetch(d.b.klip.src);
+      if (!r.ok) throw new Error(r.status);
+      d.v.preload = 'auto';
+      d.v.src = URL.createObjectURL(await r.blob());
+      d.v.load();
+      if (this.terbuka) d.v.play().then(() => d.v.pause()).catch(() => {});
+    } catch (err) {
+      console.warn('[Undangan] Klip transisi gagal dimuat:', d.b.klip.src, err);
+      d.b._klipSiap = false;
+    }
+  },
+  // Dipanggil saat tombol "Buka Undangan" diketuk: iOS butuh gestur agar video bisa di-seek
+  buka() {
+    this.terbuka = true;
+    this.daftar.forEach((d) => {
+      if (d.b.indeks <= 1) this.muat(d);
+      d.v.play().then(() => d.v.pause()).catch(() => {});
+    });
+  },
+  perbarui(P) {
+    this.daftar.forEach((d) => {
+      // muat klip bila tamu sudah dekat (bab sebelumnya atau bab itu sendiri)
+      if (!d.dimuat && P.i >= d.b.indeks - 1) this.muat(d);
+      const aktif = P.klip && P.klip.bab === d.b && d.b._klipSiap;
+      const k = aktif ? P.klip.k : 0;
+      const o = aktif ? smooth(0, 0.1, k) * (1 - smooth(0.9, 1, k)) : 0;
+      const ob = Math.round(o * 1000) / 1000;
+      if (ob !== d.tampil) {
+        d.tampil = ob;
+        d.v.style.opacity = ob;
+        d.v.classList.toggle('is-tampil', ob > 0.001);
+      }
+      if (aktif && d.v.duration) {
+        const target = Math.min(k * d.v.duration, d.v.duration - 0.05);
+        if (!d.v.seeking && Math.abs(d.v.currentTime - target) > 0.02) d.v.currentTime = target;
+      }
+    });
+  }
+};
+
 /* ===================== 6. MEMBUKA UNDANGAN ===================== */
 function pasangPembuka(dunia) {
   const tombol = $('#buka');
   tombol.addEventListener('click', async () => {
     tombol.disabled = true;
     suara.mulai();
+    klip.buka();
     $('#sampul').classList.add('is-terbuka');
     document.body.classList.remove('terkunci');
     gulir.ukur(true);
@@ -555,6 +620,7 @@ async function init() {
   window.__dunia = dunia; // untuk pengujian & debugging
   gulir.pasang(dunia);
   naskah.pasang(dunia);
+  klip.pasang(dunia);
   suara.pasang();
   menu.pasang(dunia);
   pasangPembuka(dunia);

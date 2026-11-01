@@ -74,6 +74,13 @@ button { cursor: pointer; }
     linear-gradient(180deg, rgba(20, 5, 5, .35) 0%, rgba(20, 5, 5, 0) 16%, rgba(20, 5, 5, 0) 70%, rgba(20, 5, 5, .5) 100%);
 }
 .ruang-gulir { position: relative; z-index: -1; width: 1px; pointer-events: none; }
+/* Video transisi antar bab (di atas kanvas, di bawah vinyet & teks) */
+.klip-transisi { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; z-index: 0; pointer-events: none; }
+.klip-transisi video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; visibility: hidden; filter: saturate(1.04) contrast(1.03);
+}
+.klip-transisi video.is-tampil { visibility: visible; }
 
 /* ===================== 3. LOADING & SAMPUL ===================== */
 .loader {
@@ -504,7 +511,7 @@ select.field__input {
       url("../assets/images/batik_pattern.webp") center / 320px repeat, var(--maroon-deep);
     background-blend-mode: normal, multiply, normal;
   }
-  .dunia, .vinyet {
+  .dunia, .vinyet, .klip-transisi {
     left: 50%; right: auto; width: min(100vw, 62.5vh); transform: translateX(-50%);
     box-shadow: 0 0 0 1px rgba(212, 175, 55, .55), 0 0 0 7px rgba(42, 14, 14, .9), 0 0 0 8px rgba(212, 175, 55, .35), 0 30px 80px rgba(0, 0, 0, .7);
   }

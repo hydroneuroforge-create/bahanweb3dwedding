@@ -166,6 +166,9 @@ const P9 = (gambar, extra = {}) => ({ gambar, z: -40, tinggi: 60, kedalaman: 10,
            { t, pos, lihat } -> koordinat langsung.  { t, fokus: N, isi, naik } -> menyorot lapisan ke-N.
    transisi: { jenis: 'tembus', ke: [u, v] } -> kamera menembus titik (u,v) lalu adegan berikutnya mekar dari sana.
              Jenis lain: 'tirai' | 'kabut' | 'cahaya' | 'malam' (jangan dipakai kecuali diminta).
+   klip: { src, panjang } -> video transisi (Google Flow) diputar mengikuti gulir sesudah bab ini.
+             "panjang" = ruang gulir tambahan (satuan gulir), kira-kira 0.3 × durasi video (detik).
+             Bila video gagal/belum termuat, kedua adegan dicampur pelan sebagai cadangan.
    latar.samakan: false -> kecerahan gambar tidak disamakan (mis. malam).
    efek : kelopak, kilau, kunang, lampion, burung, kembangApi (0..1)
    suara: burung, air, jangkrik (0..1) */
@@ -182,13 +185,15 @@ export const BAB = [
       { jenis: 'kabut', pos: [0, -12, -22], ukuran: [70, 14], kekuatan: 0.55 }
     ],
     kamera: [
+      // kamera tetap lebar: dorongan menembus gapura dilakukan oleh video klip T01
       { t: 0.0, pos: [0, -1.2, 12], lihat: [0, -1.2, -40] },
-      { t: 0.38, pos: [0, -1.6, 6], lihat: [0, -2.5, -40] },
-      { t: 0.8, pos: [0, -4.5, -6], lihat: [0, -7, -40] }
+      { t: 0.45, pos: [0, -1.4, 9], lihat: [0, -1.6, -40] },
+      { t: 1.0, pos: [0, -1.2, 12], lihat: [0, -1.2, -40] }
     ],
     efek: { kelopak: 0.9, kilau: 0.6, burung: 0.4 },
     suara: { burung: 0.8, air: 0.2 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.66] } // menembus celah gapura
+    transisi: { jenis: 'tembus', ke: [0.5, 0.66] }, // menembus celah gapura
+    klip: { src: 'assets/video/transisi/t01.mp4', panjang: 2.6 } // video Flow: gapura -> lembah kampung
   },
   {
     id: 'kampung', judul: 'Kampung Halaman', durasi: 3, waktu: 'fajarKampung',
@@ -199,13 +204,15 @@ export const BAB = [
       { jenis: 'sinar', pos: [-8, 14, -30], ukuran: [22, 40], kekuatan: 0.4, rz: 0.35 }
     ],
     kamera: [
-      { t: 0.05, uv: [0.5, 0.2], jarak: 50 },
-      { t: 0.5, uv: [0.5, 0.42], jarak: 52 },
-      { t: 0.88, uv: [0.5, 0.6], jarak: 44 }
+      // awal & akhir = gambar utuh, sama dengan frame akhir klip T01 dan frame awal klip T02
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 },
+      { t: 0.5, uv: [0.5, 0.44], jarak: 60 },
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 }
     ],
     efek: { kelopak: 0.5, burung: 0.9, kilau: 0.35 },
     suara: { burung: 1, air: 0.4 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.62] } // menembus jalan setapak menuju desa
+    transisi: { jenis: 'tembus', ke: [0.5, 0.62] }, // menembus jalan setapak menuju desa
+    klip: { src: 'assets/video/transisi/t02.mp4', panjang: 3.4 } // video Flow: turun bukit -> daun pisang -> lorong desa
   },
   {
     id: 'desa', judul: 'Jalan Desa', durasi: 3, waktu: 'pagi',
@@ -214,7 +221,7 @@ export const BAB = [
       { jenis: 'sinar', pos: [0, 6, -32], ukuran: [16, 36], kekuatan: 0.55, rz: 0 }
     ],
     kamera: [
-      { t: 0.05, uv: [0.5, 0.56], jarak: 56 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T02
       { t: 0.5, uv: [0.5, 0.55], jarak: 46 },
       { t: 0.9, uv: [0.5, 0.54], jarak: 36 }
     ],
