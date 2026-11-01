@@ -21,13 +21,14 @@ Ukuran 1080×1920 (potret 9:16).
 ## Cara membuat di Google Flow (per klip)
 
 1. Buka https://labs.google/flow lalu buat project baru, misalnya "Undangan Syaif Sasti".
-2. Pilih mode **Frames to Video**.
+2. Di kotak prompt bagian bawah, klik **nama model** (default tertulis "Nano Banana Pro"),
+   lalu pilih **Video**, lalu pilih **Frames**. Pastikan tombol **Agent** di kotak prompt dalam keadaan mati.
 3. Pengaturan:
    - Rasio: **9:16 (Portrait)**
    - Model: **Gemini Omni 1.1 Flash** (kalau tidak ada, pakai Veo 3.1 Fast)
    - Durasi: **pendek, 4–5 detik** (kalau tidak bisa diatur, biarkan default; nanti saya potong)
    - Resolusi: **720p** sudah cukup
-4. Kotak **frame pertama**: upload `1_AWAL.jpg`. Kotak **frame terakhir**: upload `2_AKHIR.jpg`.
+4. Seret `1_AWAL.jpg` ke kotak **"+ Add start frame"** dan `2_AKHIR.jpg` ke kotak **"+ Add end frame"**.
 5. Tempel prompt dari daftar di bawah (bagian **"Prompt"** untuk klip itu).
 6. Generate. Kalau hasilnya ada potongan adegan (cut), wajah berubah, atau muncul teks aneh, generate ulang.
 7. Download MP4, lalu beri nama sesuai kodenya: `T01.mp4`, `T02.mp4`, … `T12.mp4`.
