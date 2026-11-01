@@ -26,7 +26,7 @@
 
 export const SUSUNAN = {
   jarakBab: 150,      // jarak antar bab di ruang 3D
-  lebarTransisi: 0.5, // panjang transisi antar bab (satuan gulir, di tiap sisi batas)
+  lebarTransisi: 0.55, // panjang transisi antar bab (satuan gulir, di tiap sisi batas)
   fov: 45,
   satuanGulir: 0.85   // 1 satuan = 0.85 × tinggi layar
 };
@@ -173,7 +173,10 @@ const HANGAT = { tint: [1.04, 0.98, 0.9], lift: [0.01, 0, 0], saturasi: 1.02 };
    kamera: titik kunci boleh memakai { t, fokus: N, isi, naik, dy, dz, geser } untuk menyorot
            lapisan ke-N (indeks di array lapisan) sehingga tokoh mengisi "isi" (0..1) tinggi layar.
            naik = geser titik pandang ke atas (× tinggi tokoh) agar tokoh berada di bagian bawah layar.
-   transisi: 'tirai' (tirai batik + gunungan, bawaan) | 'kabut' | 'cahaya' | 'malam' */
+   transisi: { jenis: 'tembus', ke: [u, v] }  (bawaan) -> kamera terbang masuk ke titik (u,v) pada latar
+             (pintu/jendela/jalan) lalu adegan berikutnya mekar dari tengah bukaan itu.
+             Jenis lain: 'tirai' (tirai batik + gunungan) | 'kabut' | 'cahaya' | 'malam'.
+   latar.samakan: false -> jangan samakan kecerahan gambar ini dengan adegan lain (mis. malam) */
 export const BAB = [
   {
     id: 'gerbang', judul: 'Gerbang Keraton', durasi: 2.4, waktu: 'fajarEmas',
@@ -193,7 +196,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.9, kilau: 0.6, burung: 0.4 },
     suara: { burung: 0.8, air: 0.2 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.5, 0.66] } // menembus celah gapura
   },
   {
     // Fajar di kampung: kamera turun dari langit menuju desa, nama mempelai di langit
@@ -214,7 +217,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.5, burung: 0.9, kilau: 0.35 },
     suara: { burung: 1, air: 0.45 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.45, 0.8] } // menembus atap rumah desa
   },
   {
     // Jalan desa: kamera berjalan menyusuri lorong kampung, ayat suci muncul
@@ -234,7 +237,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.8, kilau: 0.4 },
     suara: { burung: 0.9, air: 0.2 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.5, 0.56] } // menembus ujung lorong desa
   },
   {
     // Kisah 2023: klinik terapi anak tempat mereka bertemu
@@ -252,7 +255,7 @@ export const BAB = [
     ],
     efek: { kilau: 0.5, kelopak: 0.2 },
     suara: { burung: 0.25 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.15, 0.3] } // menembus jendela klinik yang terang
   },
   {
     // 2023–2026: berjalan bersama di pematang sawah
@@ -268,7 +271,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.5, burung: 1, kilau: 0.3 },
     suara: { burung: 1, air: 0.6 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.7, 0.22] } // menembus rumah joglo di ujung pematang
   },
   {
     // 15 Agustus 2026: lamaran di teras rumah keluarga
@@ -285,7 +288,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.9, kilau: 0.7 },
     suara: { burung: 0.4 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.5, 0.4] } // menembus pintu rumah berhias
   },
   {
     // Menuju halal: alun-alun keraton dengan beringin kembar
@@ -301,7 +304,7 @@ export const BAB = [
     ],
     efek: { burung: 1, kelopak: 0.5, kilau: 0.4 },
     suara: { burung: 0.8 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.5, 0.4] } // menembus tajuk beringin
   },
   {
     id: 'mempelai', judul: 'Mempelai', durasi: 3.2, waktu: 'emasDalam',
@@ -315,7 +318,7 @@ export const BAB = [
     ],
     efek: { kilau: 0.9, kelopak: 0.3 },
     suara: { burung: 0.2 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.53, 0.72] } // menembus genggaman tangan
   },
   {
     // Pelaminan: mempelai berdiri di depan gebyok, gong muncul saat hitung mundur
@@ -337,7 +340,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.7, kilau: 0.8 },
     suara: { burung: 0.2 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.5, 0.4] } // menembus tengah gebyok pelaminan
   },
   {
     // Galeri: lorong lampion keraton, foto berbingkai emas melayang di sepanjang lorong
@@ -351,7 +354,7 @@ export const BAB = [
     ],
     efek: { kelopak: 0.4, lampion: 0.25, kilau: 0.6 },
     suara: { air: 0.15 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.5, 0.5] } // menembus ujung lorong lampion
   },
   {
     id: 'senja', judul: 'Doa & Tanda Kasih', durasi: 3.6, waktu: 'senjaUngu',
@@ -366,12 +369,12 @@ export const BAB = [
     ],
     efek: { kunang: 1, kilau: 0.3, lampion: 0.12 },
     suara: { jangkrik: 0.7, air: 0.7 },
-    transisi: { jenis: 'tirai' }
+    transisi: { jenis: 'tembus', ke: [0.5, 0.1] } // menembus langit senja
   },
   {
     // Penutup: malam penuh lampion, mempelai melepas lampion bersama
     id: 'penutup', judul: 'Terima Kasih', durasi: 3.4, waktu: 'malam',
-    latar: { gambar: 'malam', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL },
+    latar: { gambar: 'malam', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL, samakan: false },
     lapisan: [
       { potongan: 'lepasLampion', uv: [0.5, 0.94], maju: 18, tinggi: 14, cahaya: 0.9, bayangan: true, rona: 0.3,
         gerak: [{ t: [0.06, 0.3], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] }

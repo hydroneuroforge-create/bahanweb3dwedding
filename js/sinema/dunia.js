@@ -203,8 +203,31 @@ function buatLangit(U) {
 }
 
 /* ===================== 3. LATAR DIORAMA ===================== */
+// Mengukur kecerahan & kejenuhan rata-rata gambar (untuk menyamakan semua latar)
+function ukurGambar(img) {
+  const cv = document.createElement('canvas');
+  cv.width = 48; cv.height = 48;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  c.drawImage(img, 0, 0, 48, 48);
+  const px = c.getImageData(0, 0, 48, 48).data;
+  let L = 0, S = 0;
+  for (let i = 0; i < px.length; i += 4) {
+    const r = px[i] / 255, g = px[i + 1] / 255, b = px[i + 2] / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+    L += 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    S += mx > 0 ? (mx - mn) / mx : 0;
+  }
+  const n = px.length / 4;
+  return { L: L / n, S: S / n };
+}
+
 function buatLatar(cfg, tex, segmen) {
   const aspek = tex.map.image.width / tex.map.image.height;
+  // Penyamaan: gambar yang terlalu terang/gelap/pucat/jenuh didorong setengah jalan ke nilai sasaran
+  const st = ukurGambar(tex.map.image);
+  const samakan = cfg.samakan !== false;
+  const eksposur = samakan ? clamp(Math.pow(0.42 / Math.max(st.L, 0.05), 0.4), 0.9, 1.12) : 1;
+  const jenuh = samakan ? clamp(Math.pow(0.42 / Math.max(st.S, 0.05), 0.45), 0.86, 1.12) : 1;
   const H = cfg.tinggi;
   const W = H * aspek;
   const geo = new THREE.PlaneGeometry(W, H, Math.round(segmen * Math.min(aspek, 2)), Math.round(segmen / Math.max(aspek, 0.5)));
@@ -213,7 +236,8 @@ function buatLatar(cfg, tex, segmen) {
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
       uPeta: { value: null }, uDalam: { value: null }, uSkalaDalam: { value: cfg.kedalaman },
       uTint: { value: new THREE.Vector3(...warna.tint) }, uLift: { value: new THREE.Vector3(...warna.lift) },
-      uSaturasi: { value: warna.saturasi }, uOpasitas: { value: 1 }, uKabur: { value: 0 }
+      uSaturasi: { value: warna.saturasi * jenuh }, uOpasitas: { value: 1 }, uKabur: { value: 0 },
+      uEksposur: { value: eksposur }
     }]),
     vertexShader: /* glsl */`
       uniform sampler2D uDalam; uniform float uSkalaDalam;
@@ -229,7 +253,7 @@ function buatLatar(cfg, tex, segmen) {
         #include <fog_vertex>
       }`,
     fragmentShader: /* glsl */`
-      uniform sampler2D uPeta; uniform vec3 uTint, uLift; uniform float uSaturasi, uOpasitas, uKabur;
+      uniform sampler2D uPeta; uniform vec3 uTint, uLift; uniform float uSaturasi, uOpasitas, uKabur, uEksposur;
       varying vec2 vUv;
       #include <fog_pars_fragment>
       void main(){
@@ -240,8 +264,16 @@ function buatLatar(cfg, tex, segmen) {
           c = (c * 2.0 + texture2D(uPeta, vUv + o, uKabur).rgb + texture2D(uPeta, vUv - o, uKabur).rgb
              + texture2D(uPeta, vUv + vec2(-o.x, o.y), uKabur).rgb + texture2D(uPeta, vUv + vec2(o.x, -o.y), uKabur).rgb) / 6.0;
         }
+        c *= uEksposur;
         float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
         c = mix(vec3(l), c, uSaturasi) * uTint + uLift;
+        // === FILTER FILM SERAGAM (sama untuk semua adegan) ===
+        // bayangan sedikit hangat-marun, sorotan keemasan lembut, kontras kurva-S tipis
+        l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+        c = mix(c, c * vec3(1.05, 0.98, 0.9), smoothstep(0.35, 1.0, l) * 0.5);
+        c += vec3(0.022, 0.008, 0.004) * (1.0 - smoothstep(0.0, 0.35, l));
+        c = mix(c, c * c * (3.0 - 2.0 * c), 0.22);
+        c = mix(vec3(dot(c, vec3(0.2126, 0.7152, 0.0722))), c, 0.94);
         float tepi = smoothstep(0.0, 0.05, vUv.x) * smoothstep(1.0, 0.95, vUv.x)
                    * smoothstep(0.0, 0.04, vUv.y) * smoothstep(1.0, 0.88, vUv.y);
         gl_FragColor = vec4(c, tepi * uOpasitas);
@@ -868,6 +900,54 @@ export class Dunia {
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
     this.pakaiBloom = true;
+    this.renderPass = this.composer.passes[0];
+
+    // Perlengkapan transisi tembus
+    this.kameraLain = this.camera.clone();
+    const rtOpsi = { type: THREE.HalfFloatType, depthBuffer: true };
+    this.rtA = new THREE.WebGLRenderTarget(4, 4, rtOpsi);
+    this.rtB = new THREE.WebGLRenderTarget(4, 4, rtOpsi);
+    this.adeganCampur = new THREE.Scene();
+    this.kameraCampur = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    this.matCampur = new THREE.ShaderMaterial({
+      uniforms: { tA: { value: this.rtA.texture }, tB: { value: this.rtB.texture }, uM: { value: 0 }, uAspek: { value: 0.5 }, uWaktu: this.U.waktu },
+      vertexShader: /* glsl */`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+      fragmentShader: /* glsl */`
+        uniform sampler2D tA, tB; uniform float uM, uAspek, uWaktu;
+        varying vec2 vUv;
+        ${GLSL_NOISE}
+        vec3 zoomBlur(sampler2D t, vec2 uv, float kuat){
+          vec3 c = vec3(0.0); vec2 d = (uv - 0.5) * kuat;
+          for (int i = 0; i < 8; i++){ c += texture2D(t, uv - d * float(i) / 8.0).rgb; }
+          return c / 8.0;
+        }
+        void main(){
+          float m = uM;
+          vec2 q = (vUv - 0.5) * vec2(uAspek, 1.0);
+          float r = length(q);
+          float rMaks = length(vec2(uAspek, 1.0) * 0.5);
+          // adegan lama: terus diperbesar & kabur gerak (kamera menembus)
+          vec2 uvA = 0.5 + (vUv - 0.5) / (1.0 + m * 0.6);
+          vec3 a = zoomBlur(tA, uvA, m * 0.18);
+          // adegan baru: muncul dari tengah, sedikit diperkecil lalu kembali normal
+          vec2 uvB = 0.5 + (vUv - 0.5) * (1.0 - (1.0 - m) * 0.25);
+          vec3 b = zoomBlur(tB, uvB, (1.0 - m) * 0.12);
+          // bukaan organik yang membesar dari titik jembatan (tengah layar)
+          float n = fbm3(vec3(q * 4.0, uWaktu * 0.2));
+          float R = smoothstep(0.0, 1.0, m) * (rMaks + 0.45) - 0.12;
+          float buka = 1.0 - smoothstep(R - 0.2, R + 0.06, r + (n - 0.5) * 0.22);
+          vec3 c = mix(a, b, buka);
+          // pinggiran bukaan bercahaya hangat (tipis, tidak menyilaukan)
+          float tepi = exp(-pow((r + (n - 0.5) * 0.22 - R) * 9.0, 2.0)) * sin(m * 3.14159) * 0.22;
+          c += vec3(1.0, 0.78, 0.45) * tepi;
+          gl_FragColor = vec4(c, 1.0);
+          #include <colorspace_fragment>
+        }`,
+      depthTest: false, depthWrite: false
+    });
+    const kuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.matCampur);
+    kuad.frustumCulled = false;
+    this.adeganCampur.add(kuad);
 
     this.ukur = this.ukur.bind(this);
     new ResizeObserver(this.ukur).observe(this.canvas);
@@ -982,6 +1062,19 @@ export class Dunia {
     while (j < n - 1 && t > K[j + 1].t) j++;
     const kb = j >= n - 1 ? K[n - 1].kabur : (t <= K[0].t ? K[0].kabur : K[j].kabur + (K[j + 1].kabur - K[j].kabur) * smooth(0, 1, (t - K[j].t) / (K[j + 1].t - K[j].t)));
     this._kabur = kb || 0;
+    const ke = b.transisi && b.transisi.ke;
+    if (ke && t > K[n - 1].t && (b.latarObj || Array.isArray(ke[0]))) {
+      // Terbang masuk ke titik jembatan (pintu/jendela/jalan) lalu menembusnya
+      b._titikKe ||= Array.isArray(ke[0]) ? new THREE.Vector3(...ke[0]) : this.titikUV(b, ke);
+      const akhir = K[n - 1];
+      const tEnd = 1 + SUSUNAN.lebarTransisi / b.durasi;
+      const e = smooth(K[n - 1].t, tEnd, t);
+      const e2 = e * e;
+      outLihat.copy(akhir.lihat).lerp(b._titikKe, Math.min(1, e * 1.6));
+      this._tmp.copy(akhir.pos).sub(b._titikKe).normalize().multiplyScalar(1.5);
+      outPos.copy(akhir.pos).lerp(this._tmp.add(b._titikKe), e2 * 0.97);
+      return;
+    }
     if (n === 1 || t <= K[0].t || t >= K[n - 1].t) {
       const k = t <= K[0].t ? K[0] : K[n - 1];
       outPos.copy(k.pos); outLihat.copy(k.lihat);
@@ -1008,6 +1101,12 @@ export class Dunia {
     this._w = w; this._h = h;
     this.renderer.setSize(w, h, false);
     this.composer.setSize(w, h);
+    const pr = this.renderer.getPixelRatio();
+    this.rtA.setSize(Math.round(w * pr), Math.round(h * pr));
+    this.rtB.setSize(Math.round(w * pr), Math.round(h * pr));
+    this.kameraLain.aspect = w / h;
+    this.kameraLain.updateProjectionMatrix();
+    this.matCampur.uniforms.uAspek.value = w / h;
     this.composer.setPixelRatio(this.renderer.getPixelRatio());
     this.bloom.resolution.set(w * 0.5, h * 0.5);
     this.camera.aspect = w / h;
@@ -1037,7 +1136,16 @@ export class Dunia {
       const k = 1 - dariAwal / w;
       lain = B[i - 1]; campur = 0.5 * k; tirai = smooth(0, 1, k); jenis = B[i - 1].transisi;
     }
-    return { i, b, t, lain, campur, tirai, jenis };
+    const tLain = lain ? (s - lain.mulai) / lain.durasi : 0;
+    return { i, b, t, lain, campur, tirai, jenis, tLain };
+  }
+
+  // Titik (u,v) pada gambar latar -> koordinat lokal bab (mengikuti peta kedalaman)
+  titikUV(b, uv) {
+    const { W, H } = b.latarObj.userData;
+    b.bacaDalam ||= bacaKedalaman(this.tex.latar[b.latar.gambar].depth);
+    const dz = b.bacaDalam(uv[0], uv[1]);
+    return new THREE.Vector3((uv[0] - 0.5) * W, (0.5 - uv[1]) * H, b.latar.z + dz * dz * b.latar.kedalaman * 1.35);
   }
 
   terapkan(s, dt) {
@@ -1100,30 +1208,49 @@ export class Dunia {
     if (b.lampionAir) b.lampionAir.forEach((s2) => { s2.userData.y0 ??= s2.position.y; s2.position.y = s2.userData.y0 + Math.sin(this.waktu * 1.2 + s2.userData.ayun) * 0.06; });
 
     // Kamera
-    this._tmp ||= new THREE.Vector3();
-    this._pos ||= new THREE.Vector3();
-    this._lihat ||= new THREE.Vector3();
-    this.posisiKamera(b, t, this._pos, this._lihat);
-    if (b.latarObj) b.latarObj.material.uniforms.uKabur.value = this._kabur;
     const pn = this.penunjuk;
     pn.hx = damp(pn.hx, pn.x, 2.5, dt || 1);
     pn.hy = damp(pn.hy, pn.y, 2.5, dt || 1);
-    const napas = this.opsi.kurangiGerak ? 0 : 1;
-    this._pos.x += pn.hx * 0.6 + Math.sin(this.waktu * 0.35) * 0.12 * napas;
-    this._pos.y += -pn.hy * 0.35 + Math.sin(this.waktu * 0.5) * 0.08 * napas;
-    this._pos.z += b.grup.position.z;
-    this._lihat.z += b.grup.position.z;
-    this.camera.position.copy(this._pos);
-    this.camera.lookAt(this._lihat);
-    this.camera.rotateZ(Math.sin(this.waktu * 0.27) * 0.006 * napas);
+    this.kameraUntuk(b, t, this.camera);
     this.langit.position.copy(this.camera.position);
     this.U.kamera.value.copy(this.camera.position);
+
+    // Transisi tembus: bab tetangga ikut disiapkan & dirender ke tekstur terpisah
+    this.tembus = null;
+    if (P.lain && P.jenis && P.jenis.jenis === 'tembus') {
+      const lain = P.lain;
+      lain.lapisanObj.forEach((o) => this.gerakkanLapisan(o, clamp(P.tLain, 0, 1)));
+      this.kameraUntuk(lain, P.tLain, this.kameraLain);
+      const lainSesudah = lain.indeks > b.indeks;
+      this.tembus = {
+        awal: lainSesudah ? b : lain, akhir: lainSesudah ? lain : b,
+        kamAwal: lainSesudah ? this.camera : this.kameraLain, kamAkhir: lainSesudah ? this.kameraLain : this.camera,
+        m: lainSesudah ? P.campur : 1 - P.campur
+      };
+    }
 
     // Tirai
     const tm = this.tirai.material.uniforms;
     tm.uKemajuan.value = P.tirai;
     if (P.jenis) { tm.uMode.value = MODE_TIRAI[P.jenis.jenis] ?? 0; tm.uWarna.value.set(P.jenis.warna); }
     this.tirai.visible = P.tirai > 0.001 && !!P.jenis && P.jenis.jenis in MODE_TIRAI;
+  }
+
+  kameraUntuk(b, t, cam) {
+    this._tmp ||= new THREE.Vector3();
+    const pos = (this._kp ||= new THREE.Vector3());
+    const lihat = (this._kl ||= new THREE.Vector3());
+    this.posisiKamera(b, t, pos, lihat);
+    if (b.latarObj) b.latarObj.material.uniforms.uKabur.value = this._kabur;
+    const pn = this.penunjuk;
+    const napas = this.opsi.kurangiGerak ? 0 : 1;
+    pos.x += pn.hx * 0.6 + Math.sin(this.waktu * 0.35) * 0.12 * napas;
+    pos.y += -pn.hy * 0.35 + Math.sin(this.waktu * 0.5) * 0.08 * napas;
+    pos.z += b.grup.position.z;
+    lihat.z += b.grup.position.z;
+    cam.position.copy(pos);
+    cam.lookAt(lihat);
+    cam.rotateZ(Math.sin(this.waktu * 0.27) * 0.006 * napas);
   }
 
   gerakkanLapisan(o, t) {
@@ -1164,6 +1291,28 @@ export class Dunia {
   }
 
   render() {
+    const T = this.tembus;
+    if (T && T.m > 0.001 && T.m < 0.999) {
+      const r = this.renderer;
+      const satu = (bab, kam, rt) => {
+        this.bab.forEach((x) => { x.grup.visible = x === bab; });
+        this.langit.position.copy(kam.position);
+        this.U.kamera.value.copy(kam.position);
+        r.setRenderTarget(rt);
+        r.render(this.scene, kam);
+      };
+      satu(T.awal, T.kamAwal, this.rtA);
+      satu(T.akhir, T.kamAkhir, this.rtB);
+      r.setRenderTarget(null);
+      this.matCampur.uniforms.uM.value = T.m;
+      if (this.pakaiBloom) {
+        this.renderPass.scene = this.adeganCampur; this.renderPass.camera = this.kameraCampur;
+        this.composer.render();
+        this.renderPass.scene = this.scene; this.renderPass.camera = this.camera;
+      } else r.render(this.adeganCampur, this.kameraCampur);
+      this.bab.forEach((x) => { x.grup.visible = x === this.posisi.b; });
+      return;
+    }
     if (this.pakaiBloom) this.composer.render();
     else this.renderer.render(this.scene, this.camera);
   }

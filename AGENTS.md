@@ -170,7 +170,8 @@ Setiap bab terdiri dari:
   Saat menyorot tokoh, beri `kabur: 1.5–2.2` (latar kabur seperti lensa kamera). Tokoh diberi `bayangan: true` (bayangan kaki), `rona` (0..1, seberapa kuat warna suasana mewarnai tokoh), dan `maju` 15–20 agar latar tidak diperbesar berlebihan.
 - `efek` : `kelopak`, `kilau`, `kunang`, `lampion`, `burung`, `kembangApi` (0..1).
 - `suara`: `burung`, `air`, `jangkrik` (0..1).
-- `transisi`: **`tirai`** (bawaan: dua kain batik dengan setengah gunungan yang menutup lalu membuka; elemen `#tirai` di `index.html`). Jenis `kabut` | `cahaya` | `malam` masih tersedia, tetapi **pemilik menilai terlalu terang**, jadi jangan dipakai kecuali diminta.
+- `transisi`: **`{ jenis: 'tembus', ke: [u, v] }`** (bawaan, permintaan pemilik: "yang nyambung"). Kamera terbang masuk ke titik jembatan `(u,v)` di latar (pintu/jendela/jalan/langit) lalu adegan berikutnya mekar dari tengah bukaan. Pilih titik yang benar-benar berupa bukaan/benda di gambar. Jenis lama `tirai`, `kabut`, `cahaya`, `malam` masih ada, tetapi **jangan dipakai kecuali diminta** (pemilik menilai terlalu terang / kurang nyambung).
+- Semua latar melewati **filter film seragam** + penyamaan kecerahan otomatis (`buatLatar` di `dunia.js`). Untuk adegan yang memang harus gelap/terang khusus, beri `latar.samakan: false`.
 
 ### Menambah gambar adegan baru (dari `docs/PROMPT_GAMBAR.md`)
 Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow numpy onnxruntime`.
@@ -218,3 +219,4 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
 - Ukuran total aset `assets/` sebaiknya ≤ 20 MB. Latar maks 2048 px sisi panjang, potongan maks 1200 px.
 - Jangan menambah jumlah partikel di `dunia.js` tanpa uji kinerja. Mesin otomatis menurunkan resolusi & mematikan bloom bila fps < 42.
 - Formulir & daftar ucapan selalu di dalam `<dialog>`; gulir halaman dikunci saat dialog terbuka. Jangan pindahkan formulir ke luar dialog.
+- Gambar baru dibuat **berurutan dengan gambar sebelumnya sebagai referensi**, mengikuti `docs/PROMPT_GAMBAR.md` versi 3 (gambar v3 → `bahan web 3d/v3/`). Bila tokoh sudah tergambar di dalam latar (v3), cukup pakai `depth` — tidak perlu potongan tokoh terpisah.
