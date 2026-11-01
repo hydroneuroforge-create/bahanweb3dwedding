@@ -292,6 +292,7 @@ const klip = {
       wadah.append(v);
       this.daftar.push({ b, v, dimuat: false, tampil: -1 });
     });
+    this.dunia = dunia;
     dunia.padaFrame((s, P) => this.perbarui(P));
   },
   // Video diunduh utuh lalu diputar dari blob: selalu bisa di-seek, apa pun servernya (mis. tanpa Range)
@@ -319,9 +320,10 @@ const klip = {
     });
   },
   perbarui(P) {
+    let tertutup = false;
     this.daftar.forEach((d) => {
-      // muat klip bila tamu sudah dekat (bab sebelumnya atau bab itu sendiri)
-      if (!d.dimuat && P.i >= d.b.indeks - 1) this.muat(d);
+      // muat klip bila tamu sudah dekat (dua bab sebelumnya), agar sudah siap saat dibutuhkan
+      if (!d.dimuat && P.i >= d.b.indeks - 2) this.muat(d);
       const aktif = P.klip && P.klip.bab === d.b && d.b._klipSiap;
       const k = aktif ? P.klip.k : 0;
       const o = aktif ? smooth(0, 0.1, k) * (1 - smooth(0.9, 1, k)) : 0;
@@ -334,8 +336,15 @@ const klip = {
       if (aktif && d.v.duration) {
         const target = Math.min(k * d.v.duration, d.v.duration - 0.05);
         if (!d.v.seeking && Math.abs(d.v.currentTime - target) > 0.02) d.v.currentTime = target;
+        // frame video sudah pernah tampil & menutup layar penuh -> 3D di bawahnya boleh berhenti dirender
+        // (selama seek, video tetap menampilkan frame terakhirnya, jadi tidak perlu menunggu readyState)
+        if (d.v.readyState >= 2) d.pernahTampil = true;
+        if (ob >= 0.999 && d.pernahTampil) tertutup = true;
+      } else {
+        d.pernahTampil = false;
       }
     });
+    this.dunia.tertutupKlip = tertutup;
   }
 };
 

@@ -4,11 +4,11 @@
 # Pakai: tools/buat_semua_klip.sh <folder_acuan> [lebar]
 #   folder_acuan berisi tNN_awal.png & tNN_akhir.png: screenshot kanvas 3D (360x640, tanpa teks/vinyet/video)
 #   tepat di akhir bab asal dan awal bab tujuan. Lihat AGENTS.md §9 "Klip transisi video".
-#   lebar: 540 (bawaan) atau 720.
+#   lebar: 720 (bawaan, kualitas penuh) atau 540 (berkas ±1/3).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 B="${1:?folder acuan wajib diisi}"
-L="${2:-540}"
+L="${2:-720}"
 PY="${PYTHON:-python3}"
 S="bahan web 3d/flow-transisi"
 O="assets/video/transisi"

@@ -97,7 +97,15 @@ def cmd_depth(args):
         inti = m > 0.5
         if inti.any():
             nilai = float(np.percentile(d[inti], 70))
-            halus = np.asarray(Image.fromarray((m * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(3)), np.float32) / 255
+            # Area datar diperlebar ±3% lebar gambar di luar siluet, lalu dilunakkan ke luar saja.
+            # Dengan begitu "tebing" kedalaman (tempat mesh meregang) jatuh di latar, jauh dari wajah & tepi profil.
+            lebar_d = d.shape[1]
+            besar = max(3, int(lebar_d * 0.03) | 1)
+            mimg = Image.fromarray((m * 255).astype(np.uint8))
+            melebar = mimg.filter(ImageFilter.MaxFilter(besar))
+            halus = np.asarray(melebar.filter(ImageFilter.GaussianBlur(lebar_d * 0.012)), np.float32) / 255
+            halus = np.maximum(halus, np.asarray(melebar, np.float32) / 255 * 0.98)
+            halus = np.maximum(halus, m)
             d = d * (1 - halus) + nilai * halus
     dimg = Image.fromarray((d * 255).astype(np.uint8)).resize(img.size, Image.BICUBIC)
     # haluskan agar mesh tidak bergerigi, tetapi tepi objek tetap tegas

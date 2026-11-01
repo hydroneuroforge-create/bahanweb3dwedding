@@ -7,7 +7,7 @@ Langkah:
   3. Rapikan: kurangi kedip (deflicker) & bintik halus AI (hqdn3d), pertajam tipis (unsharp).
   4. Samakan warna dengan render 3D di kedua batas (acuan awal & akhir). Koreksi berubah halus
      dari awal ke akhir klip, sehingga video menyatu dengan adegan sebelum dan sesudahnya.
-  5. Encode H.264 540x960 (atau --lebar 720) tanpa audio, GOP pendek agar lancar di-seek mengikuti gulir.
+  5. Encode H.264 720x1280 (atau --lebar 540 untuk berkas kecil) tanpa audio, GOP pendek agar lancar di-seek mengikuti gulir.
 
 Contoh:
   python3 tools/olah_klip.py --segmen "bahan web 3d/flow-transisi/T02A.mp4:0:6" \
@@ -30,7 +30,7 @@ except ImportError:  # pragma: no cover
     sys.exit('Pasang dulu: pip install imageio-ffmpeg')
 
 FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
-W, H, FPS = 540, 960, 24  # 540p: cukup tajam di layar HP, ukuran ±separuh 720p
+W, H, FPS = 720, 1280, 24  # sama dengan resolusi asli Flow
 
 
 def durasi(path):
@@ -171,9 +171,9 @@ def main():
     ap.add_argument('--cahaya', action='append', default=[],
                     help='MULAI:SELESAI[:KUAT] (detik, sebelum dipotong). Kilau hangat lembut untuk menyamarkan '
                          'momen berubah (morph) sehingga terasa seperti peralihan waktu yang disengaja')
-    ap.add_argument('--crf', type=int, default=28)
-    ap.add_argument('--gop', type=int, default=8, help='jarak keyframe (frame); kecil = seek lebih ringan, berkas lebih besar')
-    ap.add_argument('--lebar', type=int, default=540, help='lebar keluaran (tinggi = lebar × 16/9), mis. 540 atau 720')
+    ap.add_argument('--crf', type=int, default=24)
+    ap.add_argument('--gop', type=int, default=6, help='jarak keyframe (frame); kecil = seek lebih ringan, berkas lebih besar')
+    ap.add_argument('--lebar', type=int, default=720, help='lebar keluaran (tinggi = lebar × 16/9), mis. 540 atau 720')
     ap.add_argument('--keluar', required=True)
     a = ap.parse_args()
     global W, H
@@ -201,7 +201,7 @@ def main():
 
     tulis = imageio_ffmpeg.write_frames(
         a.keluar, (W, H), fps=FPS, codec='libx264', pix_fmt_in='rgb24', pix_fmt_out='yuv420p', macro_block_size=1,
-        output_params=['-preset', 'slow', '-crf', str(a.crf), '-g', str(a.gop), '-keyint_min', str(a.gop), '-sc_threshold', '0',
+        output_params=['-preset', 'slow', '-tune', 'film', '-crf', str(a.crf), '-g', str(a.gop), '-keyint_min', str(a.gop), '-sc_threshold', '0',
                        '-movflags', '+faststart', '-an'])
     tulis.send(None)
     for i, f in enumerate(frame):

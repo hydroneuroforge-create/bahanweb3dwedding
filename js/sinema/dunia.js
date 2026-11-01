@@ -522,8 +522,9 @@ function buatSemuaPartikel(U, ponsel, tLampion) {
         vec4 mv = viewMatrix * vec4(w, 1.0);
         gl_Position = projectionMatrix * mv;
         float kelip = pow(abs(sin(uWaktu * (0.7 + aSeed * 1.8) + aSeed * 40.0)), 4.0);
-        gl_PointSize = 0.14 * (0.5 + aSeed) * (0.6 + kelip) * uSkala / max(-mv.z, 0.3);
-        vA = pudar * uIntensitas * (0.25 + kelip) * step(aSeed, uIntensitas * 1.2);
+        // ukuran dibatasi & partikel yang terlalu dekat kamera dipudarkan (agar tidak menutupi layar)
+        gl_PointSize = min(0.14 * (0.5 + aSeed) * (0.6 + kelip) * uSkala / max(-mv.z, 0.3), uSkala * 0.03);
+        vA = pudar * uIntensitas * (0.25 + kelip) * step(aSeed, uIntensitas * 1.2) * smoothstep(1.2, 3.0, -mv.z);
       }`,
     fragment: /* glsl */`
       varying float vA;
@@ -549,8 +550,8 @@ function buatSemuaPartikel(U, ponsel, tLampion) {
         vec4 mv = viewMatrix * vec4(w, 1.0);
         gl_Position = projectionMatrix * mv;
         float nyala = smoothstep(0.3, 1.0, sin(uWaktu * (0.8 + aSeed) + aSeed * 50.0));
-        gl_PointSize = 0.22 * uSkala / max(-mv.z, 0.3);
-        vA = pudar * uIntensitas * nyala * step(aSeed, uIntensitas * 1.2);
+        gl_PointSize = min(0.22 * uSkala / max(-mv.z, 0.3), uSkala * 0.03);
+        vA = pudar * uIntensitas * nyala * step(aSeed, uIntensitas * 1.2) * smoothstep(1.2, 3.0, -mv.z);
       }`,
     fragment: /* glsl */`
       varying float vA;
@@ -578,7 +579,7 @@ function buatSemuaPartikel(U, ponsel, tLampion) {
         vec4 mv = viewMatrix * vec4(w, 1.0);
         gl_Position = projectionMatrix * mv;
         gl_PointSize = min((0.9 + aSeed * 0.9) * uSkala / max(-mv.z, 0.5), uSkala * 0.045);
-        vA = pudar * uIntensitas * step(aSeed, uIntensitas * 1.15);
+        vA = pudar * uIntensitas * step(aSeed, uIntensitas * 1.15) * smoothstep(1.5, 4.0, -mv.z);
         vKedip = 0.85 + 0.15 * sin(uWaktu * 6.0 + aSeed * 30.0);
       }`,
     fragment: /* glsl */`
@@ -630,7 +631,7 @@ function buatSemuaPartikel(U, ponsel, tLampion) {
         gl_Position = projectionMatrix * mv;
         float hidup = smoothstep(0.0, 0.08, umur) * (1.0 - smoothstep(1.0, 2.6, umur));
         float kelip = 0.6 + 0.4 * sin(uWaktu * 30.0 + aSeed * 50.0);
-        gl_PointSize = 0.32 * uSkala / max(-mv.z, 1.0) * (1.0 - umur * 0.25);
+        gl_PointSize = min(0.32 * uSkala / max(-mv.z, 1.0) * (1.0 - umur * 0.25), uSkala * 0.02);
         vA = hidup * kelip * uIntensitas;
         float rr = hash11(k + 4.0);
         vWarna = mix(vec3(1.0, 0.82, 0.45), rona(rr), 0.55 * step(0.35, rr));
@@ -968,8 +969,22 @@ export class Dunia {
 
     this.loop = this.loop.bind(this);
     this.terapkan(0, 0);
-    this.renderer.compile(this.scene, this.camera);
+    this.siapkanGPU();
     this.perbaruiJalan();
+  }
+
+  // Kompilasi semua shader & unggah semua tekstur ke GPU saat layar loading,
+  // agar tidak tersendat ketika sebuah bab tampil untuk pertama kali.
+  siapkanGPU() {
+    const tersembunyi = [];
+    this.scene.traverse((o) => { if (!o.visible) { tersembunyi.push(o); o.visible = true; } });
+    this.renderer.compile(this.scene, this.camera);
+    this.renderer.compile(this.adeganCampur, this.kameraCampur);
+    tersembunyi.forEach((o) => { o.visible = false; });
+    const t = this.tex;
+    [...Object.values(t.latar).flatMap((x) => [x.map, x.depth]), ...Object.values(t.potongan), ...t.galeri]
+      .forEach((x) => { if (x && x.isTexture) this.renderer.initTexture(x); });
+    this.bab.forEach((x) => { x.grup.visible = x === this.posisi.b; });
   }
 
   bangunGaleri(b, grup, tBingkai) {
@@ -991,7 +1006,7 @@ export class Dunia {
       const holder = new THREE.Group();
       holder.position.set(x, 0.35, z);
       holder.rotation.y = -sisi * 0.32;
-      const foto = new THREE.Mesh(new THREE.PlaneGeometry(lebar, tinggi), new THREE.MeshBasicMaterial({ map: this.tex.galeri[i], fog: true }));
+      const foto = new THREE.Mesh(new THREE.PlaneGeometry(lebar, tinggi), new THREE.MeshBasicMaterial({ map: this.tex.galeri[i], fog: true, transparent: true }));
       const bingkai = new THREE.Mesh(new THREE.PlaneGeometry(lebar * 1.13, tinggi * 1.2), new THREE.MeshBasicMaterial({ map: tBingkai, transparent: true, fog: true, color: new THREE.Color(1.15, 1.1, 1.05) }));
       bingkai.position.z = 0.01;
       const pantul = new THREE.Mesh(new THREE.PlaneGeometry(lebar * 1.13, tinggi * 1.2), new THREE.MeshBasicMaterial({ map: this.tex.galeri[i], transparent: true, opacity: 0.18, fog: true }));
@@ -1003,14 +1018,21 @@ export class Dunia {
       bingkai.userData.indeksGaleri = i;
       this.bingkaiFoto.push(foto, bingkai);
       grup.add(holder);
+      (b.fotoGaleri ||= []).push(holder);
       // Kamera berhenti sejenak di depan tiap foto
       const t = tAwal + (i / Math.max(n - 1, 1)) * (tAkhir - tAwal);
       b.kamera.push({ t, pos: [x * 0.35, 0.4, z + 6.2], lihat: [x * 1.05, 0.3, z - 1] });
     });
     // Batas dengan klip video: kamera memperlihatkan lorong tanpa foto di depan agar sama dengan frame klip
     const zAkhir = cfg.mulaiZ - (n - 1) * cfg.jarak;
-    if (sebelum && sebelum.klip) b.kamera.unshift({ t: 0, pos: [0, 0, 45], lihat: [0, 0, -100] });
-    if (b.klip) b.kamera.push({ t: 1, pos: [0, 0.3, zAkhir - 5], lihat: [0, 0.2, -100] });
+    // Titik pandang dibuat dekat (bukan di ujung lorong) agar interpolasi ke titik pandang foto tidak membuat
+    // kamera berbelok tajam ke samping (dulu sempat memperlihatkan langit oranye di awal galeri).
+    if (sebelum && sebelum.klip) b.kamera.unshift({ t: 0, pos: [0, 0, 45], lihat: [0, 0.1, cfg.mulaiZ - 1] });
+    if (b.klip) {
+      // keluar lewat sisi yang berlawanan dengan foto terakhir agar kamera tidak menembus bingkainya
+      const sisiAkhir = (n - 1) % 2 === 0 ? -1 : 1;
+      b.kamera.push({ t: 1, pos: [-sisiAkhir * 0.5, 0.3, zAkhir - 5], lihat: [0, 0.2, zAkhir - 16] });
+    }
     // lampion statis yang mengapung di atas air
     const tLamp = this.tex.potongan.lampion || teksturLampion();
     for (let i = 0; i < 26; i++) {
@@ -1228,6 +1250,17 @@ export class Dunia {
       obj.material.color.copy(L.uWarnaMatahari.value);
       obj.material.opacity = l.kekuatan * (0.8 + 0.2 * Math.sin(this.waktu * 0.6));
     });
+    // Foto galeri memudar saat kamera lewat sangat dekat / sudah melewatinya (tepi bingkai tidak menyapu layar)
+    if (b.fotoGaleri) {
+      this._pf ||= new THREE.Vector3();
+      b.fotoGaleri.forEach((h) => {
+        h.getWorldPosition(this._pf);
+        const depan = this.camera.position.z - this._pf.z; // > 0: foto masih di depan kamera
+        const k = smooth(0.6, 3.2, depan);
+        h.visible = k > 0.01;
+        h.children.forEach((m) => { m.material.opacity = (m.userData.opasitasDasar ??= m.material.opacity) * k; });
+      });
+    }
     if (b.lampionAir) b.lampionAir.forEach((s2) => { s2.userData.y0 ??= s2.position.y; s2.position.y = s2.userData.y0 + Math.sin(this.waktu * 1.2 + s2.userData.ayun) * 0.06; });
 
     // Kamera
@@ -1327,6 +1360,8 @@ export class Dunia {
   }
 
   render() {
+    // Video transisi menutupi layar sepenuhnya: tidak perlu merender 3D (GPU bebas untuk memutar video)
+    if (this.tertutupKlip) return;
     const T = this.tembus;
     if (T && T.m > 0.001 && T.m < 0.999) {
       const r = this.renderer;

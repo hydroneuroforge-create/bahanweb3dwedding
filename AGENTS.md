@@ -220,13 +220,20 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
 - Jangan menambah jumlah partikel di `dunia.js` tanpa uji kinerja. Mesin otomatis menurunkan resolusi & mematikan bloom bila fps < 42.
 - Formulir & daftar ucapan selalu di dalam `<dialog>`; gulir halaman dikunci saat dialog terbuka. Jangan pindahkan formulir ke luar dialog.
 - Gambar baru dibuat **berurutan dengan gambar sebelumnya sebagai referensi**, mengikuti `docs/PROMPT_GAMBAR.md` versi 3 (gambar v3 → `bahan web 3d/v3/`). Bila tokoh sudah tergambar di dalam latar (v3), cukup pakai `depth` — tidak perlu potongan tokoh terpisah.
-- Untuk latar yang memuat tokoh, buat peta kedalaman dengan `--ratakan-orang` agar wajah tidak tampak penyok saat kamera bergerak.
+- Untuk latar yang memuat tokoh, buat peta kedalaman dengan `--ratakan-orang` agar wajah tidak tampak penyok/tertarik saat kamera bergerak.
+  Opsi ini meratakan tokoh **dan** area ±3% lebar gambar di sekelilingnya, sehingga regangan mesh jatuh di latar, bukan di tepi wajah.
+  Simpan hanya `_depth.webp` yang baru bila gambar warnanya tidak berubah.
+- Partikel (kilau, kunang, lampion, kembang api) dibatasi ukurannya dan memudar bila terlalu dekat kamera. Jangan hapus batas ini:
+  tanpa batas, satu partikel di depan lensa bisa menutupi layar dengan warna oranye polos.
+- Semua shader & tekstur diunggah ke GPU saat loading (`siapkanGPU`). Tekstur baru harus lewat `this.tex` agar ikut diunggah.
 
 ### Klip transisi video (Google Flow)
 - Prompt & pasangan frame: `docs/PROMPT_TRANSISI_FLOW.md` dan `bahan web 3d/flow-transisi/TNN_*/` (`1_AWAL.jpg`, `2_AKHIR.jpg`).
   Hasil mentah dari Flow diunggah ke `bahan web 3d/flow-transisi/` (tidak dipakai langsung oleh website).
-- Klip siap pakai ada di `assets/video/transisi/tNN.mp4` (540×960, H.264 CRF 28, keyframe tiap 8 frame, tanpa audio; total ±17 MB).
-  Buat ulang semuanya sekaligus: `tools/buat_semua_klip.sh <folder_acuan> [540|720]` (resep tiap klip ada di skrip itu).
+- Klip siap pakai ada di `assets/video/transisi/tNN.mp4` (720×1280 = resolusi asli Flow, H.264 CRF 24 `-tune film`,
+  keyframe tiap 6 frame, tanpa audio; total ±48 MB, dimuat dua bab sebelum dibutuhkan).
+  Buat ulang semuanya sekaligus: `tools/buat_semua_klip.sh <folder_acuan> [720|540]` (resep tiap klip ada di skrip itu).
+  Selama video menutup layar penuh, 3D tidak dirender (`dunia.tertutupKlip`) agar GPU bebas memutar video.
   Selalu olah lewat `tools/olah_klip.py`. Alat ini memotong/membalik/menyambung segmen, mengurangi kedip & bintik AI,
   dan **menyamakan warna klip dengan render 3D** di kedua batas (koreksi berubah halus dari awal ke akhir klip):
   ```bash
