@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Undangan Pernikahan Syaif &amp; Sasti · 26 Desember 2026</title>
+  <meta name="description" content="Dengan memohon rahmat Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk hadir di pernikahan Syaif &amp; Sasti, Sabtu 26 Desember 2026, Cibinong, Bogor.">
+  <meta name="theme-color" content="#5B1E1E">
+
+  <!-- Pratinjau saat link dibagikan (WhatsApp, Instagram, dll.) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Undangan Pernikahan Syaif &amp; Sasti">
+  <meta property="og:description" content="Sabtu, 26 Desember 2026 · Cibinong, Kabupaten Bogor">
+  <meta property="og:image" content="assets/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+
+  <!-- Google Fonts: Cinzel (judul), Cormorant Garamond (aksen), Poppins (isi), Amiri Quran (ayat) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@300;400;500;600&display=swap">
+
+  <!-- Latar 3D hero dimuat lebih awal (crossorigin harus sama dengan TextureLoader) -->
+  <link rel="preload" href="assets/images/palace_bg.webp" as="image" type="image/webp" media="(min-width: 768px)" crossorigin="anonymous">
+  <link rel="preload" href="assets/images/palace_bg_mobile.webp" as="image" type="image/webp" media="(max-width: 767px)" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Tautan lompat untuk pengguna keyboard / pembaca layar -->
+  <a class="skip-link" href="#salam">Lewati ke isi undangan</a>
+
+  <!-- =====================================================================
+       SVG SPRITE — ikon & ornamen bergaya Jawa (dipakai lewat <use href="#...">)
+       ===================================================================== -->
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="grad-gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F6DE8D"/>
+        <stop offset=".5" stop-color="#D4AF37"/>
+        <stop offset="1" stop-color="#9C7A1C"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Gunungan wayang: simbol pembuka & penutup kisah -->
+    <symbol id="ico-gunungan" viewBox="0 0 100 120">
+      <path d="M50 4C60 22 90 52 92 84c1 10-3 18-8 22H16c-5-4-9-12-8-22C10 52 40 22 50 4Z" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"/>
+      <path d="M50 22v62M50 40l-14 10M50 40l14 10M50 54l-20 13M50 54l20 13M50 68l-24 12M50 68l24 12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+      <circle cx="36" cy="50" r="3" fill="currentColor"/><circle cx="64" cy="50" r="3" fill="currentColor"/>
+      <path d="M38 106V92h24v14" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M44 106V97h12v9" fill="currentColor" opacity=".55"/>
+    </symbol>
+
+    <!-- Motif kawung (4 kelopak) untuk loader -->
+    <symbol id="orn-kawung" viewBox="0 0 100 100">
+      <g fill="none" stroke="currentColor" stroke-width="2.4">
+        <ellipse cx="50" cy="27" rx="13" ry="22"/><ellipse cx="50" cy="73" rx="13" ry="22"/>
+        <ellipse cx="27" cy="50" rx="22" ry="13"/><ellipse cx="73" cy="50" rx="22" ry="13"/>
+        <circle cx="50" cy="50" r="5"/>
+        <circle cx="50" cy="50" r="46" stroke-dasharray="3 6"/>
+      </g>
+      <g fill="currentColor"><circle cx="50" cy="16" r="2.5"/><circle cx="50" cy="84" r="2.5"/><circle cx="16" cy="50" r="2.5"/><circle cx="84" cy="50" r="2.5"/></g>
+    </symbol>
+
+    <!-- Sulur sudut (ukiran) untuk kartu -->
+    <symbol id="orn-corner" viewBox="0 0 80 80">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 76V20C4 11 11 4 20 4h56"/>
+        <path d="M12 76V28c0-9 7-16 16-16h48" opacity=".6"/>
+        <path d="M20 40c0-11 9-20 20-20 8 0 13 6 13 12 0 5-4 9-9 9-4 0-7-3-7-6"/>
+        <path d="M20 40c0 10 6 16 13 16"/>
+      </g>
+      <circle cx="20" cy="20" r="3.2" fill="currentColor"/>
+    </symbol>
+
+    <!-- Garis pemisah dengan wajik di tengah -->
+    <symbol id="orn-divider" viewBox="0 0 240 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M4 12h84M152 12h84"/>
+        <path d="M88 12c8 0 10-8 18-8M152 12c-8 0-10-8-18-8M88 12c8 0 10 8 18 8M152 12c-8 0-10 8-18 8"/>
+      </g>
+      <path d="M120 2l10 10-10 10-10-10Z" fill="currentColor"/>
+      <circle cx="120" cy="12" r="3" fill="#F5E6D3"/>
+    </symbol>
+
+    <!-- Cincin kembar (akad) -->
+    <symbol id="ico-rings" viewBox="0 0 64 64">
+      <g fill="none" stroke="currentColor" stroke-width="3.2">
+        <circle cx="24" cy="38" r="15"/><circle cx="40" cy="38" r="15"/>
+      </g>
+      <path d="M40 14l5-6h-10Z M35 8l5 6 5-6" fill="currentColor"/>
+    </symbol>
+
+    <!-- Atap joglo / pendopo (resepsi) -->
+    <symbol id="ico-pendopo" viewBox="0 0 64 64">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M24 10h16l6 12H18Z"/>
+        <path d="M18 22 4 34h56L46 22"/>
+        <path d="M12 34v20M52 34v20M24 34v20M40 34v20M8 56h48"/>
+      </g>
+      <path d="M32 3v7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="ico-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></g><path d="M12 13.2l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3Z" fill="currentColor"/></symbol>
+    <symbol id="ico-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="ico-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.4 7-12a7 7 0 1 0-14 0c0 5.6 7 12 7 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="ico-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2Z"/><path d="M9 4v14M15 6v14"/></g></symbol>
+    <symbol id="ico-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></g></symbol>
+    <symbol id="ico-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10.5 3 8 3.5 6.5 8 12 8Zm0 0s1.5-5 4-4.5S17.5 8 12 8Z"/></g></symbol>
+    <symbol id="ico-bank" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 9 12 3l9 6Z"/><path d="M5 9v9M10 9v9M14 9v9M19 9v9M3 21h18"/></g></symbol>
+    <symbol id="ico-instagram" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></g><circle cx="17.3" cy="6.7" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="ico-heart" viewBox="0 0 24 24"><path d="M12 20.5S3 15 3 8.8A4.8 4.8 0 0 1 12 6.3a4.8 4.8 0 0 1 9 2.5c0 6.2-9 11.7-9 11.7Z" fill="currentColor"/></symbol>
+    <symbol id="ico-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 .2 5.5 2.2 5.5 5.3"/></g></symbol>
+    <symbol id="ico-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9.5h8M8 12.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="ico-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 17 5-5 4 4 3-3 6 6"/></g><circle cx="15.5" cy="8.5" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="ico-couple" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="7" r="3"/><circle cx="16" cy="7" r="3"/><path d="M3 20c0-4 2.2-7 5-7s5 3 5 7M11 20c0-4 2.2-7 5-7s5 3 5 7"/></g></symbol>
+    <symbol id="ico-music" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.8" fill="currentColor"/><circle cx="17.5" cy="16" r="2.8" fill="currentColor"/></symbol>
+    <symbol id="ico-music-off" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.8" fill="currentColor"/><circle cx="17.5" cy="16" r="2.8" fill="currentColor"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-chev-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ico-chev-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ico-chev-down" viewBox="0 0 24 24"><path d="m5 9 7 7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ico-send" viewBox="0 0 24 24"><path d="M3 11.5 21 3l-8.5 18-2-7.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <!-- Ikon kisah cinta -->
+    <symbol id="ico-meet" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><rect x="10" y="20" width="44" height="30" rx="4"/><path d="M24 20v-5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v5M10 32h44"/></g><path d="M32 44.5s-6-3.6-6-7.6a3.2 3.2 0 0 1 6-1.6 3.2 3.2 0 0 1 6 1.6c0 4-6 7.6-6 7.6Z" fill="currentColor"/></symbol>
+    <symbol id="ico-bond" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30c6-8 14-8 20-2l6 6"/><path d="M56 30c-6-8-14-8-20-2l-10 10c-2 2-1 5 2 5 2 0 3-1 4-2l4-4"/><path d="M30 46l4 4M36 42l4 4"/></g><path d="M32 20s-5-3-5-6.5a2.7 2.7 0 0 1 5-1.4 2.7 2.7 0 0 1 5 1.4c0 3.5-5 6.5-5 6.5Z" fill="currentColor"/></symbol>
+    <symbol id="ico-letter" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><rect x="8" y="16" width="48" height="34" rx="4"/><path d="m8 20 24 16 24-16"/></g><circle cx="32" cy="42" r="6" fill="currentColor"/></symbol>
+  </svg>
+
+  <!-- =====================================================================
+       A. LOADING SCREEN
+       ===================================================================== -->
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <div class="loader__ornament" aria-hidden="true">
+      <svg class="loader__kawung"><use href="#orn-kawung"/></svg>
+      <svg class="loader__gunungan"><use href="#ico-gunungan"/></svg>
+    </div>
+    <p class="loader__title">Syaif <span>&amp;</span> Sasti</p>
+    <p class="loader__text">Memuat Undangan…</p>
+    <div class="loader__bar" role="progressbar" aria-label="Progres memuat" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="loader__fill" id="loader-fill"></span>
+    </div>
+    <p class="loader__percent" id="loader-percent" aria-hidden="true">0%</p>
+  </div>
+
+  <!-- Kontrol musik (muncul setelah undangan dibuka) -->
+  <button class="music-toggle" id="music-toggle" type="button" aria-pressed="false" aria-label="Putar musik" hidden>
+    <svg class="music-toggle__icon music-toggle__icon--on" aria-hidden="true"><use href="#ico-music"/></svg>
+    <svg class="music-toggle__icon music-toggle__icon--off" aria-hidden="true"><use href="#ico-music-off"/></svg>
+  </button>
+  <audio id="bg-music" loop preload="none"></audio>
+
+  <!-- Kursor kustom (hanya perangkat dengan mouse) -->
+  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"></span></div>
+
+  <!-- =====================================================================
+       B. HERO — kanvas Three.js fullscreen
+       ===================================================================== -->
+  <header class="hero" id="hero">
+    <!-- Gambar cadangan jika WebGL tidak tersedia -->
+    <div class="hero__fallback" aria-hidden="true"></div>
+    <canvas class="hero__canvas" id="scene-canvas" aria-hidden="true"></canvas>
+    <div class="hero__shade" aria-hidden="true"></div>
+
+    <div class="hero__content">
+      <p class="hero__eyebrow" data-hero-item>Undangan Pernikahan</p>
+      <h1 class="hero__title" data-hero-item>
+        <span class="hero__name">Syaif</span>
+        <span class="hero__amp" aria-label="dan">&amp;</span>
+        <span class="hero__name">Sasti</span>
+      </h1>
+      <svg class="hero__divider" data-hero-item aria-hidden="true"><use href="#orn-divider"/></svg>
+      <p class="hero__date" data-hero-item><time datetime="2026-12-26">Sabtu, 26 Desember 2026</time></p>
+      <button class="btn btn--gold btn--glow hero__open" id="open-invitation" type="button" data-hero-item>
+        <svg class="btn__icon" aria-hidden="true"><use href="#ico-letter"/></svg>
+        Buka Undangan
+      </button>
+      <a class="hero__scroll" id="hero-scroll" href="#salam" hidden>
+        <span>Gulir ke bawah</span>
+        <svg aria-hidden="true"><use href="#ico-chev-down"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===================================================================
+         SALAM & AYAT — QS Ar-Rum (30):21
+         =================================================================== -->
+    <section class="section section--cream section--batik salam" id="salam" aria-labelledby="salam-title">
+      <div class="container container--narrow">
+        <svg class="section__emblem" data-reveal aria-hidden="true"><use href="#ico-gunungan"/></svg>
+        <!-- JANGAN UBAH teks ayat di bawah tanpa verifikasi mushaf (lihat AGENTS.md) -->
+        <p class="ayat__arabic" lang="ar" dir="rtl" data-reveal>وَمِنْ ءَايَٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًۭا لِّتَسْكُنُوٓا۟ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةًۭ وَرَحْمَةًۚ إِنَّ فِى ذَٰلِكَ لَءَايَٰتٍۢ لِّقَوْمٍۢ يَتَفَكَّرُونَ</p>
+        <p class="ayat__translation" data-reveal>“Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang. Sesungguhnya pada yang demikian itu benar-benar terdapat tanda-tanda bagi kaum yang berfikir.”</p>
+        <h2 class="ayat__source" id="salam-title" data-reveal>QS. Ar-Rum (30): 21</h2>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         C. MEMPELAI
+         =================================================================== -->
+    <section class="section section--cream mempelai" id="mempelai" aria-labelledby="mempelai-title">
+      <div class="container">
+        <header class="section__head" data-reveal>
+          <p class="section__salam">Assalamu’alaikum Warahmatullahi Wabarakatuh</p>
+          <h2 class="section__title" id="mempelai-title">Mempelai</h2>
+          <svg class="section__divider" aria-hidden="true"><use href="#orn-divider"/></svg>
+          <p class="section__lead">Dengan memohon rahmat dan ridha Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami:</p>
+        </header>
+
+        <div class="couple">
+          <!-- === GANTI DENGAN FOTO ANDA === (path di js/config.js -> ASSETS.groomPhoto) -->
+          <article class="person" data-reveal-stagger>
+            <figure class="person__frame">
+              <img class="person__photo" src="assets/images/groom.webp" width="660" height="880" loading="lazy" decoding="async" alt="Potret Syaif Rahid Safauzan berbusana beskap beludru biru dengan blangkon">
+            </figure>
+            <p class="person__nick">Syaif</p>
+            <h3 class="person__name">Syaif Rahid Safauzan</h3>
+            <p class="person__parents">Putra pertama dari<br><strong>Bapak Ayi Ruswandi</strong> &amp; <strong>Ibu Ririn Sulistyawati</strong></p>
+            <a class="btn btn--outline btn--sm" href="https://instagram.com/syaifrs" target="_blank" rel="noopener noreferrer">
+              <svg class="btn__icon" aria-hidden="true"><use href="#ico-instagram"/></svg>@syaifrs
+            </a>
+          </article>
+
+          <p class="couple__amp" aria-hidden="true" data-reveal>&amp;</p>
+
+          <!-- === GANTI DENGAN FOTO ANDA === (path di js/config.js -> ASSETS.bridePhoto) -->
+          <article class="person" data-reveal-stagger>
+            <figure class="person__frame">
+              <img class="person__photo" src="assets/images/bride.webp" width="660" height="880" loading="lazy" decoding="async" alt="Potret Prasasti berkebaya brokat krem dengan siger emas dan ronce melati">
+            </figure>
+            <p class="person__nick">Sasti</p>
+            <h3 class="person__name">Prasasti</h3>
+            <p class="person__parents">Putri ketiga dari<br><strong>Bapak Suradi Harto</strong> &amp; <strong>Ibu Sri Mulyani</strong></p>
+            <a class="btn btn--outline btn--sm" href="https://instagram.com/saliciaa_" target="_blank" rel="noopener noreferrer">
+              <svg class="btn__icon" aria-hidden="true"><use href="#ico-instagram"/></svg>@saliciaa_
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         D. ACARA — Akad & Resepsi
+         =================================================================== -->
+    <section class="section section--batik acara" id="acara" aria-labelledby="acara-title">
+      <div class="acara__bg" aria-hidden="true"></div>
+      <div class="container">
+        <header class="section__head section__head--light" data-reveal>
+          <p class="section__kicker">Rangkaian Acara</p>
+          <h2 class="section__title" id="acara-title">Hari Bahagia</h2>
+          <svg class="section__divider" aria-hidden="true"><use href="#orn-divider"/></svg>
+          <p class="section__lead">Dengan penuh rasa syukur, kami mengundang Bapak/Ibu/Saudara/i untuk hadir pada:</p>
+        </header>
+
+        <div class="events">
+          <article class="event card" data-reveal-group>
+            <svg class="card__corner card__corner--tl" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <svg class="card__corner card__corner--br" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <svg class="event__icon" aria-hidden="true"><use href="#ico-rings"/></svg>
+            <h3 class="event__title">Akad Nikah</h3>
+            <ul class="event__meta">
+              <li><svg aria-hidden="true"><use href="#ico-calendar"/></svg><time datetime="2026-12-26">Sabtu, 26 Desember 2026</time></li>
+              <li><svg aria-hidden="true"><use href="#ico-clock"/></svg><time datetime="2026-12-26T09:00+07:00">Pukul 09.00 WIB</time></li>
+            </ul>
+          </article>
+
+          <article class="event card" data-reveal-group>
+            <svg class="card__corner card__corner--tl" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <svg class="card__corner card__corner--br" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <svg class="event__icon" aria-hidden="true"><use href="#ico-pendopo"/></svg>
+            <h3 class="event__title">Resepsi</h3>
+            <ul class="event__meta">
+              <li><svg aria-hidden="true"><use href="#ico-calendar"/></svg><time datetime="2026-12-26">Sabtu, 26 Desember 2026</time></li>
+              <li><svg aria-hidden="true"><use href="#ico-clock"/></svg><span><time datetime="2026-12-26T11:00+07:00">11.00</time> – <time datetime="2026-12-26T13:00+07:00">13.00 WIB</time></span></li>
+            </ul>
+          </article>
+        </div>
+
+        <!-- Lokasi: akad & resepsi di tempat yang sama -->
+        <div class="venue card" data-reveal>
+          <svg class="venue__icon" aria-hidden="true"><use href="#ico-pin"/></svg>
+          <h3 class="venue__title">Lokasi Acara</h3>
+          <p class="venue__address">Jl. Bedahan RT 05 RW 01, Pabuaran Mekar,<br>Kec. Cibinong, Kabupaten Bogor</p>
+          <div class="venue__actions">
+            <a class="btn btn--gold" id="maps-link" href="https://maps.app.goo.gl/T7Qgc8HXHPjVvXiM7" target="_blank" rel="noopener noreferrer">
+              <svg class="btn__icon" aria-hidden="true"><use href="#ico-map"/></svg>Lihat Lokasi
+            </a>
+            <a class="btn btn--outline-light" id="calendar-link" href="#" target="_blank" rel="noopener noreferrer">
+              <svg class="btn__icon" aria-hidden="true"><use href="#ico-calendar"/></svg>Simpan ke Kalender
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         E. HITUNG MUNDUR
+         =================================================================== -->
+    <section class="section section--maroon countdown" id="hitung-mundur" aria-labelledby="countdown-title">
+      <div class="container">
+        <header class="section__head section__head--light" data-reveal>
+          <p class="section__kicker">Menuju Hari Bahagia</p>
+          <h2 class="section__title" id="countdown-title">Hitung Mundur</h2>
+          <svg class="section__divider" aria-hidden="true"><use href="#orn-divider"/></svg>
+        </header>
+        <div class="countdown__grid" id="countdown" role="timer" aria-live="off" aria-label="Waktu menuju akad nikah">
+          <div class="countdown__card" data-reveal-group><span class="countdown__num" data-unit="days">00</span><span class="countdown__label">Hari</span></div>
+          <div class="countdown__card" data-reveal-group><span class="countdown__num" data-unit="hours">00</span><span class="countdown__label">Jam</span></div>
+          <div class="countdown__card" data-reveal-group><span class="countdown__num" data-unit="minutes">00</span><span class="countdown__label">Menit</span></div>
+          <div class="countdown__card" data-reveal-group><span class="countdown__num" data-unit="seconds">00</span><span class="countdown__label">Detik</span></div>
+        </div>
+        <p class="countdown__done" id="countdown-done" hidden>Alhamdulillah, hari bahagia telah tiba. Terima kasih atas doa dan restunya.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         G. KISAH CINTA — gulungan naskah
+         =================================================================== -->
+    <section class="section section--cream section--batik kisah" id="kisah" aria-labelledby="kisah-title">
+      <div class="container container--narrow">
+        <header class="section__head" data-reveal>
+          <p class="section__kicker">Perjalanan Kami</p>
+          <h2 class="section__title" id="kisah-title">Kisah Cinta</h2>
+          <svg class="section__divider" aria-hidden="true"><use href="#orn-divider"/></svg>
+        </header>
+
+        <div class="scroll-paper" data-reveal>
+          <span class="scroll-paper__rod scroll-paper__rod--top" aria-hidden="true"></span>
+          <ol class="timeline">
+            <li class="timeline__item" data-reveal-group>
+              <span class="timeline__icon" aria-hidden="true"><svg><use href="#ico-meet"/></svg></span>
+              <p class="timeline__date">2023</p>
+              <h3 class="timeline__title">Awal Bertemu</h3>
+              <p class="timeline__text">Takdir mempertemukan kami di tempat kerja. Sapaan sederhana di sela kesibukan menjadi awal dari sebuah cerita yang tak pernah kami duga.</p>
+            </li>
+            <li class="timeline__item" data-reveal-group>
+              <span class="timeline__icon" aria-hidden="true"><svg><use href="#ico-heart"/></svg></span>
+              <p class="timeline__date">2023 – 2026</p>
+              <h3 class="timeline__title">Saling Mengenal</h3>
+              <p class="timeline__text">Obrolan ringan tumbuh menjadi rasa nyaman. Kami belajar saling memahami dan menguatkan, hingga sadar bahwa doa kami menyebut nama yang sama.</p>
+            </li>
+            <li class="timeline__item" data-reveal-group>
+              <span class="timeline__icon" aria-hidden="true"><svg><use href="#ico-bond"/></svg></span>
+              <p class="timeline__date"><time datetime="2026-08-15">15 Agustus 2026</time></p>
+              <h3 class="timeline__title">Lamaran</h3>
+              <p class="timeline__text">Dengan restu kedua keluarga, Syaif datang meminang Sasti. Niat baik itu disambut dengan haru dan bahagia.</p>
+            </li>
+            <li class="timeline__item" data-reveal-group>
+              <span class="timeline__icon" aria-hidden="true"><svg><use href="#ico-rings"/></svg></span>
+              <p class="timeline__date"><time datetime="2026-12-26">26 Desember 2026</time></p>
+              <h3 class="timeline__title">Hari Pernikahan</h3>
+              <p class="timeline__text">Dengan mengucap Bismillah, kami melangkah menuju ikatan suci pernikahan. Semoga menjadi keluarga yang sakinah, mawaddah, wa rahmah.</p>
+            </li>
+          </ol>
+          <span class="scroll-paper__rod scroll-paper__rod--bottom" aria-hidden="true"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         F. GALERI — diisi otomatis dari js/config.js (GALLERY)
+         =================================================================== -->
+    <section class="section section--cream galeri" id="galeri" aria-labelledby="galeri-title">
+      <div class="container">
+        <header class="section__head" data-reveal>
+          <p class="section__kicker">Momen Kami</p>
+          <h2 class="section__title" id="galeri-title">Galeri</h2>
+          <svg class="section__divider" aria-hidden="true"><use href="#orn-divider"/></svg>
+        </header>
+        <ul class="gallery" id="gallery" aria-label="Foto galeri, pilih untuk memperbesar"></ul>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         H. RSVP & UCAPAN
+         =================================================================== -->
+    <section class="section section--batik ucapan" id="ucapan" aria-labelledby="ucapan-title">
+      <div class="container">
+        <header class="section__head section__head--light" data-reveal>
+          <p class="section__kicker">Konfirmasi Kehadiran</p>
+          <h2 class="section__title" id="ucapan-title">RSVP &amp; Ucapan</h2>
+          <svg class="section__divider" aria-hidden="true"><use href="#orn-divider"/></svg>
+          <p class="section__lead">Mohon konfirmasi kehadiran dan kirimkan doa terbaik untuk kedua mempelai.</p>
+        </header>
+
+        <div class="rsvp">
+          <form class="rsvp__form card card--paper" id="rsvp-form" novalidate data-reveal>
+            <div class="field">
+              <label class="field__label" for="rsvp-name">Nama</label>
+              <input class="field__input" id="rsvp-name" name="name" type="text" autocomplete="name" required maxlength="50" placeholder="Nama Anda">
+              <p class="field__error" id="rsvp-name-error" hidden>Mohon isi nama Anda.</p>
+            </div>
+
+            <fieldset class="field">
+              <legend class="field__label">Konfirmasi Kehadiran</legend>
+              <div class="choice">
+                <label class="choice__item"><input type="radio" name="attendance" value="hadir" required><span><svg aria-hidden="true"><use href="#ico-heart"/></svg>Ya, saya hadir</span></label>
+                <label class="choice__item"><input type="radio" name="attendance" value="tidak"><span>Maaf, tidak bisa</span></label>
+              </div>
+              <p class="field__error" id="rsvp-attendance-error" hidden>Mohon pilih konfirmasi kehadiran.</p>
+            </fieldset>
+
+            <div class="field" id="guests-field">
+              <label class="field__label" for="rsvp-guests">Jumlah Tamu</label>
+              <select class="field__input" id="rsvp-guests" name="guests">
+                <option value="1">1 orang</option>
+                <option value="2">2 orang</option>
+                <option value="3">3 orang</option>
+                <option value="4">4 orang</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="rsvp-message">Ucapan &amp; Doa</label>
+              <textarea class="field__input" id="rsvp-message" name="message" rows="4" maxlength="300" required placeholder="Tulis ucapan dan doa terbaik…"></textarea>
+              <p class="field__hint"><span id="message-count">0</span>/300</p>
+              <p class="field__error" id="rsvp-message-error" hidden>Mohon tulis ucapan Anda.</p>
+            </div>
+
+            <button class="btn btn--maroon btn--block" type="submit">
+              <svg class="btn__icon" aria-hidden="true"><use href="#ico-send"/></svg>Kirim Ucapan
+            </button>
+          </form>
+
+          <div class="wishes" data-reveal>
+            <div class="wishes__stats" aria-live="polite">
+              <p><strong id="stat-total">0</strong> Ucapan</p>
+              <p><strong id="stat-hadir">0</strong> Hadir</p>
+              <p><strong id="stat-tidak">0</strong> Tidak Hadir</p>
+            </div>
+            <ul class="wishes__list" id="wishes-list" aria-label="Daftar ucapan" tabindex="0"></ul>
+            <p class="wishes__empty" id="wishes-empty">Belum ada ucapan. Jadilah yang pertama mengirim doa untuk Syaif &amp; Sasti.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         I. HADIAH
+         =================================================================== -->
+    <section class="section section--cream section--batik hadiah" id="hadiah" aria-labelledby="hadiah-title">
+      <div class="container">
+        <header class="section__head" data-reveal>
+          <p class="section__kicker">Tanda Kasih</p>
+          <h2 class="section__title" id="hadiah-title">Kirim Hadiah</h2>
+          <svg class="section__divider" aria-hidden="true"><use href="#orn-divider"/></svg>
+          <p class="section__lead">Doa restu Anda adalah karunia yang sangat berarti bagi kami. Namun jika ingin memberikan tanda kasih, Anda dapat mengirimkannya melalui:</p>
+        </header>
+
+        <div class="gifts">
+          <article class="gift card card--maroon" data-reveal-group>
+            <svg class="card__corner card__corner--tl" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <svg class="card__corner card__corner--br" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <div class="gift__head">
+              <svg class="gift__icon" aria-hidden="true"><use href="#ico-bank"/></svg>
+              <p class="gift__brand">BCA</p>
+            </div>
+            <p class="gift__label">Nomor Rekening</p>
+            <p class="gift__number" id="bank-number">6830 6315 59</p>
+            <p class="gift__owner">a.n. Prasasti</p>
+            <button class="btn btn--gold btn--sm" type="button" data-copy="6830631559" data-copy-message="Nomor rekening berhasil disalin!">
+              <svg class="btn__icon" aria-hidden="true"><use href="#ico-copy"/></svg>Salin Nomor
+            </button>
+          </article>
+
+          <article class="gift card card--maroon" data-reveal-group>
+            <svg class="card__corner card__corner--tl" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <svg class="card__corner card__corner--br" aria-hidden="true"><use href="#orn-corner"/></svg>
+            <div class="gift__head">
+              <svg class="gift__icon" aria-hidden="true"><use href="#ico-gift"/></svg>
+              <p class="gift__brand">Kirim Kado</p>
+            </div>
+            <p class="gift__label">Alamat Pengiriman</p>
+            <p class="gift__address">Komplek IPB 4 Blok C No. 53,<br>Tanah Baru, Bogor Utara 16154</p>
+            <button class="btn btn--gold btn--sm" type="button" data-copy="Komplek IPB 4 Blok C No. 53, Tanah Baru, Bogor Utara 16154" data-copy-message="Alamat berhasil disalin!">
+              <svg class="btn__icon" aria-hidden="true"><use href="#ico-copy"/></svg>Salin Alamat
+            </button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         J. PENUTUP
+         =================================================================== -->
+    <section class="section penutup" id="penutup" aria-labelledby="penutup-title">
+      <div class="penutup__bg" aria-hidden="true"></div>
+      <div class="container container--narrow penutup__content">
+        <p class="penutup__text" data-reveal>Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu kepada kedua mempelai.</p>
+        <p class="penutup__text" data-reveal>Atas kehadiran dan doa restunya, kami ucapkan terima kasih.</p>
+        <p class="penutup__salam" data-reveal>Wassalamu’alaikum Warahmatullahi Wabarakatuh</p>
+
+        <div class="penutup__gate" data-reveal>
+          <img class="penutup__gate-img penutup__gate-img--left" src="assets/images/gate_left.webp" width="853" height="1100" loading="lazy" decoding="async" alt="">
+          <div class="penutup__names">
+            <p class="penutup__kicker">Kami yang berbahagia</p>
+            <h2 class="penutup__title" id="penutup-title">Syaif <span>&amp;</span> Sasti</h2>
+            <p class="penutup__families">Beserta keluarga besar<br>Bapak Ayi Ruswandi &amp; Ibu Ririn Sulistyawati<br>Bapak Suradi Harto &amp; Ibu Sri Mulyani</p>
+            <p class="penutup__date"><time datetime="2026-12-26">26 · 12 · 2026</time></p>
+          </div>
+          <img class="penutup__gate-img penutup__gate-img--right" src="assets/images/gate_right.webp" width="712" height="1100" loading="lazy" decoding="async" alt="">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Dibuat dengan <svg class="footer__heart" aria-label="cinta" role="img"><use href="#ico-heart"/></svg> untuk Syaif &amp; Sasti · 2026</p>
+    <p class="footer__credit">Musik: “Gamelan angka 2 Kraton Ngayogyakarta” oleh <a href="https://commons.wikimedia.org/wiki/File:Gamelan_angka_2_Kraton_Ngayogyakarta.ogg" target="_blank" rel="noopener noreferrer">RTB45</a>, lisensi <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</p>
+  </footer>
+
+  <!-- Navigasi bawah -->
+  <nav class="dock" id="dock" aria-label="Navigasi bagian undangan" hidden>
+    <a class="dock__link" href="#mempelai"><svg aria-hidden="true"><use href="#ico-couple"/></svg><span>Mempelai</span></a>
+    <a class="dock__link" href="#acara"><svg aria-hidden="true"><use href="#ico-calendar"/></svg><span>Acara</span></a>
+    <a class="dock__link" href="#galeri"><svg aria-hidden="true"><use href="#ico-image"/></svg><span>Galeri</span></a>
+    <a class="dock__link" href="#ucapan"><svg aria-hidden="true"><use href="#ico-chat"/></svg><span>Ucapan</span></a>
+    <a class="dock__link" href="#hadiah"><svg aria-hidden="true"><use href="#ico-gift"/></svg><span>Hadiah</span></a>
+  </nav>
+
+  <!-- Lightbox galeri -->
+  <dialog class="lightbox" id="lightbox" aria-label="Pratinjau foto">
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" id="lightbox-img" src="data:," alt="">
+      <figcaption class="lightbox__caption" id="lightbox-caption"></figcaption>
+    </figure>
+    <button class="lightbox__btn lightbox__btn--close" type="button" data-lightbox="close" aria-label="Tutup"><svg aria-hidden="true"><use href="#ico-close"/></svg></button>
+    <button class="lightbox__btn lightbox__btn--prev" type="button" data-lightbox="prev" aria-label="Foto sebelumnya"><svg aria-hidden="true"><use href="#ico-chev-left"/></svg></button>
+    <button class="lightbox__btn lightbox__btn--next" type="button" data-lightbox="next" aria-label="Foto berikutnya"><svg aria-hidden="true"><use href="#ico-chev-right"/></svg></button>
+    <p class="lightbox__counter" id="lightbox-counter" aria-live="polite"></p>
+  </dialog>
+
+  <!-- Notifikasi singkat -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ===================== SCRIPT =====================
+       Urutan penting: library -> config -> scene -> main.
+       Three.js dimuat oleh scene.js (ES module dari CDN). -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" integrity="sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" integrity="sha384-wl5TeDVvOWt30Pbf8aSo2ZrzsOjddu3avOBvHe+p+OhJt9gP6w9YXmDkN5DK2/dF" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js" integrity="sha384-R18XzqnxvVLEF+BYfhpmDx30v7eP83fAckyfoRzK7/Uf6nGqufcmsk0eAKo7S3RU" crossorigin="anonymous" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/scene.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
