@@ -255,6 +255,7 @@ function buatLatar(cfg, tex, segmen) {
 
 /* ===================== 4. LAPISAN ===================== */
 function buatPotongan(cfg, tex) {
+  if (cfg.cermin) { tex = tex.clone(); tex.repeat.x = -1; tex.offset.x = 1; tex.needsUpdate = true; }
   const aspek = tex.image.width / tex.image.height;
   const h = cfg.tinggi;
   const w = h * aspek;
@@ -267,8 +268,23 @@ function buatPotongan(cfg, tex) {
     color: new THREE.Color(terang * 1.02, terang * 0.95, terang * 0.9)
   });
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.set(...cfg.pos);
+  if (cfg.pos) mesh.position.set(...cfg.pos);
   return mesh;
+}
+
+// Membaca nilai peta kedalaman di titik (u,v) — untuk menaruh tokoh tepat "berdiri" di lantai gambar
+function bacaKedalaman(tex) {
+  const img = tex.image;
+  const cv = document.createElement('canvas');
+  cv.width = img.width; cv.height = img.height;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  c.drawImage(img, 0, 0);
+  const data = c.getImageData(0, 0, cv.width, cv.height).data;
+  return (u, v) => {
+    const x = Math.min(cv.width - 1, Math.max(0, Math.round(u * (cv.width - 1))));
+    const y = Math.min(cv.height - 1, Math.max(0, Math.round(v * (cv.height - 1))));
+    return data[(y * cv.width + x) * 4] / 255;
+  };
 }
 
 function buatKabut(cfg, tex) {
@@ -387,7 +403,7 @@ function sistemPartikel(U, { jumlah, kotak, maju = [0, 0, -0.35], atribut, verte
   return titik;
 }
 
-function buatSemuaPartikel(U, ponsel) {
+function buatSemuaPartikel(U, ponsel, tLampion) {
   const f = ponsel ? 0.65 : 1;
   const sistem = {};
 
@@ -492,7 +508,7 @@ function buatSemuaPartikel(U, ponsel) {
   // Lampion terbang
   sistem.lampion = sistemPartikel(U, {
     jumlah: Math.round(90 * f), kotak: [40, 34, 60], maju: [0, 0.2, -0.4],
-    uniform: { uPeta: { value: teksturLampion() } },
+    uniform: { uPeta: { value: tLampion || teksturLampion() }, uAspek: { value: tLampion ? tLampion.image.width / tLampion.image.height : 0.8 } },
     vertex: /* glsl */`
       uniform float uWaktu, uSkala, uIntensitas, uGerak;
       attribute float aSeed; varying float vA, vKedip;
@@ -509,14 +525,17 @@ function buatSemuaPartikel(U, ponsel) {
         vKedip = 0.85 + 0.15 * sin(uWaktu * 6.0 + aSeed * 30.0);
       }`,
     fragment: /* glsl */`
-      uniform sampler2D uPeta; varying float vA, vKedip;
+      uniform sampler2D uPeta; uniform float uAspek; varying float vA, vKedip;
       void main(){
-        vec2 uv = vec2(gl_PointCoord.x, gl_PointCoord.y * 1.25 - 0.12);
-        if (uv.y < 0.0 || uv.y > 1.0 || vA < 0.01) discard;
-        vec4 t = texture2D(uPeta, uv);
-        float a = t.a * vA;
+        if (vA < 0.01) discard;
+        vec2 pc = gl_PointCoord;
+        vec2 uv = vec2((pc.x - 0.5) / uAspek + 0.5, pc.y);
+        float halo = smoothstep(0.5, 0.0, length(pc - vec2(0.5, 0.62))) * 0.35;
+        vec4 t = (uv.x < 0.0 || uv.x > 1.0) ? vec4(0.0) : texture2D(uPeta, uv);
+        float a = max(t.a, halo) * vA;
         if (a < 0.01) discard;
-        gl_FragColor = vec4(t.rgb * 1.5 * vKedip, a);
+        vec3 c = mix(vec3(1.0, 0.62, 0.25) * 1.4, t.rgb * 1.35 * vKedip, t.a);
+        gl_FragColor = vec4(c, a);
       }`
   });
 
@@ -786,7 +805,17 @@ export class Dunia {
       }
       (b.lapisan || []).forEach((l) => {
         let obj;
-        if (l.potongan) obj = buatPotongan(l, this.tex.potongan[l.potongan]);
+        if (l.potongan) {
+          obj = buatPotongan(l, this.tex.potongan[l.potongan]);
+          if (l.uv && b.latarObj) {
+            b.bacaDalam ||= bacaKedalaman(this.tex.latar[b.latar.gambar].depth);
+            const { W, H } = b.latarObj.userData;
+            const dz = b.bacaDalam(l.uv[0], l.uv[1]);
+            l.pos = [(l.uv[0] - 0.5) * W, (0.5 - l.uv[1]) * H, b.latar.z + dz * dz * b.latar.kedalaman * 1.35 + (l.maju || 0)];
+            l.relatif = true;
+            obj.position.set(...l.pos);
+          }
+        }
         else if (l.jenis === 'kabut') { obj = buatKabut(l, tAwan); this.kabutSemua.push({ obj, l }); }
         else if (l.jenis === 'sinar') { obj = buatSinar(l, tSinar); this.sinarSemua.push({ obj, l }); }
         if (!obj) return;
@@ -802,7 +831,7 @@ export class Dunia {
     });
 
     // Partikel
-    this.partikel = buatSemuaPartikel(this.U, this.ponsel);
+    this.partikel = buatSemuaPartikel(this.U, this.ponsel, this.tex.potongan.lampion);
     Object.values(this.partikel).forEach((p) => this.scene.add(p));
 
     // Tirai transisi (selalu di depan kamera)
@@ -839,8 +868,8 @@ export class Dunia {
 
   bangunGaleri(b, grup, tBingkai) {
     const cfg = b.bingkaiGaleri;
-    const air = buatAir(this.U, -2.3);
-    grup.add(air);
+    const pakaiAir = cfg.air !== false;
+    if (pakaiAir) grup.add(buatAir(this.U, -2.3));
     b.kamera = [];
     const n = GALERI.length;
     GALERI.forEach((g, i) => {
@@ -858,22 +887,24 @@ export class Dunia {
       const pantul = new THREE.Mesh(new THREE.PlaneGeometry(lebar * 1.13, tinggi * 1.2), new THREE.MeshBasicMaterial({ map: this.tex.galeri[i], transparent: true, opacity: 0.18, fog: true }));
       pantul.scale.y = -1;
       pantul.position.y = -(2.3 + 0.35) * 2 + 0.0;
-      holder.add(foto, bingkai, pantul);
+      holder.add(foto, bingkai);
+      if (pakaiAir) holder.add(pantul);
       foto.userData.indeksGaleri = i;
       bingkai.userData.indeksGaleri = i;
       this.bingkaiFoto.push(foto, bingkai);
       grup.add(holder);
       // Kamera berhenti sejenak di depan tiap foto
       const t = 0.1 + (i / Math.max(n - 1, 1)) * 0.78;
-      b.kamera.push({ t, pos: [x * 0.4, 0.45, z + 5.2], lihat: [x * 1.05, 0.3, z - 1] });
+      b.kamera.push({ t, pos: [x * 0.35, 0.4, z + 6.2], lihat: [x * 1.05, 0.3, z - 1] });
     });
     // lampion statis yang mengapung di atas air
-    const tLamp = teksturLampion();
+    const tLamp = this.tex.potongan.lampion || teksturLampion();
     for (let i = 0; i < 26; i++) {
       const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tLamp, color: new THREE.Color(1.5, 1.35, 1.15), fog: true, depthWrite: false }));
       const z = cfg.mulaiZ + 6 - rand() * (n * cfg.jarak + 12);
-      s.position.set((rand() - 0.5) * 9, -2.0 + rand() * 0.1, z);
-      s.scale.set(0.35, 0.45, 1);
+      const sisiL = rand() < 0.5 ? -1 : 1; // jauhkan dari jalur kamera di tengah
+      s.position.set(pakaiAir ? (rand() - 0.5) * 9 : sisiL * (2.2 + rand() * 2.6), pakaiAir ? -2.0 + rand() * 0.1 : 2.4 + rand() * 2.6, z);
+      s.scale.set(0.3, 0.48, 1);
       s.userData.ayun = rand() * 10;
       grup.add(s);
       (b.lampionAir ||= []).push(s);
@@ -883,14 +914,18 @@ export class Dunia {
   /* ---------- Kamera ---------- */
   siapkanKamera(b) {
     const latar = b.latarObj;
+    // Layar lebar: kamera dimajukan agar gambar latar tetap memenuhi lebar layar
+    const tanSetengah = Math.tan(THREE.MathUtils.degToRad(SUSUNAN.fov) / 2);
     return (b.kamera || []).map((k) => {
       if (k.uv && latar) {
         const { W, H } = latar.userData;
+        const jarakMaks = (W * 0.9) / (2 * tanSetengah * Math.max(this.camera.aspect, 0.3));
+        const jarak = Math.min(k.jarak, jarakMaks);
         const x = (k.uv[0] - 0.5) * W;
         const y = (0.5 - k.uv[1]) * H;
         const zL = b.latar.z + b.latar.kedalaman * 0.35;
         const g = k.geser || [0, 0];
-        return { t: k.t, pos: new THREE.Vector3(x + g[0], y + g[1], zL + k.jarak), lihat: new THREE.Vector3(x, y, zL) };
+        return { t: k.t, pos: new THREE.Vector3(x + g[0], y + g[1], zL + jarak), lihat: new THREE.Vector3(x, y, zL) };
       }
       return { t: k.t, pos: new THREE.Vector3(...k.pos), lihat: new THREE.Vector3(...k.lihat) };
     });
@@ -939,6 +974,7 @@ export class Dunia {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.tirai.material.uniforms.uAspek.value = w / h;
+    this.bab.forEach((b) => { if (b.latarObj && !b.bingkaiGaleri) b.kunci = this.siapkanKamera(b); });
     const tanSetengah = Math.tan(THREE.MathUtils.degToRad(SUSUNAN.fov) / 2);
     this.U.skalaTitik.value = (h * this.renderer.getPixelRatio()) / (2 * tanSetengah);
     if (!this.jalan) this.render();
@@ -1013,7 +1049,7 @@ export class Dunia {
       obj.material.color.copy(L.uWarnaMatahari.value);
       obj.material.opacity = l.kekuatan * (0.8 + 0.2 * Math.sin(this.waktu * 0.6));
     });
-    if (b.lampionAir) b.lampionAir.forEach((s2) => { s2.position.y = -2.05 + Math.sin(this.waktu * 1.2 + s2.userData.ayun) * 0.05; });
+    if (b.lampionAir) b.lampionAir.forEach((s2) => { s2.userData.y0 ??= s2.position.y; s2.position.y = s2.userData.y0 + Math.sin(this.waktu * 1.2 + s2.userData.ayun) * 0.06; });
 
     // Kamera
     this._tmp ||= new THREE.Vector3();
@@ -1044,9 +1080,16 @@ export class Dunia {
   gerakkanLapisan(o, t) {
     const cfg = o.userData.cfg;
     const st = { ...o.userData.dasar };
+    const dasar = o.userData.dasar;
+    const abs = (obj) => {
+      if (!obj || !cfg.relatif) return obj || {};
+      const out = { ...obj };
+      ['x', 'y', 'z'].forEach((k) => { if (k in out) out[k] += dasar[k]; });
+      return out;
+    };
     (cfg.gerak || []).forEach((g) => {
-      const dari = { ...st, ...(g.dari || {}) };
-      const ke = { ...dari, ...(g.ke || {}) };
+      const dari = { ...st, ...abs(g.dari) };
+      const ke = { ...dari, ...abs(g.ke) };
       const k = smooth(g.t[0], g.t[1], t);
       for (const key of Object.keys(st)) st[key] = lerp(dari[key], ke[key], k);
     });

@@ -11,6 +11,7 @@ Perintah:
   cutout  <gambar> <keluaran.webp> [--width 1200] [--white]
           Menghapus latar dengan model ISNet lalu memotong ke area objek.
           --white : gabungkan dengan kunci warna putih (untuk latar putih polos).
+  Opsi --putar 90 memutar gambar yang tersimpan miring (berlawanan jarum jam).
           Dipakai untuk lapisan objek & tokoh (kode L dan C).
 
 Model diunduh otomatis ke ~/.cache/undangan-models (±280 MB, sekali saja).
@@ -78,8 +79,13 @@ def estimate_depth(img: Image.Image) -> np.ndarray:
     return d
 
 
+def putar(img, derajat):
+    """Memutar gambar berlawanan arah jarum jam (untuk hasil generate yang tersimpan miring)."""
+    return img.rotate(derajat, expand=True) if derajat else img
+
+
 def cmd_depth(args):
-    img = load_rgb(args.src)
+    img = putar(load_rgb(args.src), args.putar)
     w = min(args.width, img.width)
     img = img.resize((w, round(img.height * w / img.width)), Image.LANCZOS)
     d = estimate_depth(img)
@@ -116,7 +122,7 @@ def white_key(img: Image.Image) -> np.ndarray:
 
 
 def cmd_cutout(args):
-    img = load_rgb(args.src)
+    img = putar(load_rgb(args.src), args.putar)
     alpha = isnet_mask(img)
     if args.white:
         # gabungan: ISNet untuk bentuk utama, kunci putih untuk celah (mis. di antara daun)
@@ -144,11 +150,13 @@ def main():
     d = sub.add_parser("depth")
     d.add_argument("src"); d.add_argument("out")
     d.add_argument("--width", type=int, default=1440); d.add_argument("--quality", type=int, default=80)
+    d.add_argument("--putar", type=int, default=0, help="putar N derajat berlawanan jarum jam (90/180/270)")
     d.set_defaults(fn=cmd_depth)
     c = sub.add_parser("cutout")
     c.add_argument("src"); c.add_argument("out")
     c.add_argument("--width", type=int, default=1200); c.add_argument("--quality", type=int, default=86)
     c.add_argument("--white", action="store_true")
+    c.add_argument("--putar", type=int, default=0)
     c.set_defaults(fn=cmd_cutout)
     args = ap.parse_args()
     args.fn(args)

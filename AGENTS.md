@@ -187,11 +187,27 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
    `latar: { gambar: 'klinik', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL }` dan kamera `uv` berjarak 55–75.
    Tokoh diletakkan sebagai `potongan` dengan `pos: [x, y, z]` di antara kamera dan latar (z −10 … +3),
    `tinggi` 4–7, dan `gerak` muncul (`dari: { o: 0, y: … }, ke: { o: 1 }`).
-4. **Rencana penggantian bab** saat gambar v2 tersedia (urutan yang dituju):
-   `gerbang` → `fajar kampung (B1)` → `jalan desa (B2, ayat)` → `kisah: klinik (B3 + C2)` → `kisah: lamaran (B4 + C3)` →
-   `alun-alun (B5)` → `mempelai (B6 + C4)` → `acara` → `galeri (B7 lorong lampion)` → `senja (B8 teratai)` → `penutup (B9 + C5)`.
-   Bab `kisah` saat ini hanya awan (sementara) dan harus dipecah menjadi klinik & lamaran. Teks kisah sudah ada di `index.html`;
-   pindahkan `<article>` ke `<section class="bab" data-bab="ID-baru">` yang sesuai dan atur ulang `data-t`.
+4. **Peta gambar v2 yang sudah terpasang** (file asli di `bahan web 3d/v2/bahan1|bahan2/`):
+
+   | Bab | Latar | Potongan | File asli (akhiran nama) |
+   |---|---|---|---|
+   | `kampung` | `b1_kampung` | `kuntul`, `kelapa` | `e39872d3` (B1), `55151a2b` (L10), `92d2136e` (L3) |
+   | `desa` | `b2_desa` (diputar `--putar 90`) | `daun` | `5847db41` (B2), `411a0c89` (L2) |
+   | `klinik` | `b3_klinik` | `terapis` | `c2e1d765` (B3), `f17b1894` (C2) |
+   | `sawah` | `b10_sawah` | `jalan` | `03f0f6ec` (B10), `d76b3ab9` (C1) |
+   | `lamaran` | `b4_lamaran` | `lamaran` | `7345b596` (B4), `2c706cdb` (C3) |
+   | `alun` | `b5_alun` | `kuntul` | `db9a19c8` (B5) |
+   | `acara` | `b6_pelaminan` | `pelaminan`, `gong` | `a459d81e` (B6), `c3e0083d` (C4), `d31d737d` (L6) |
+   | `galeri` | `b7_lorong` | (lampion) | `16e8c1d9` (B7), `3c1881e8` (L5) |
+   | `senja` | `b8_teratai` | – | `07c092e4` (B8) |
+   | `penutup` | `b9_malam` | `lepasLampion` | `55791683` (B9), `6c5351d3` (C5) |
+
+   Cadangan yang belum dipakai (boleh dipakai untuk variasi): `23` alternatif kampung (`f8de0ad3`), alun-alun lain (`7f04c97f`),
+   sawah lain (`bb0fadaa`), lorong lain (`59da9b2b`), teratai lain (`9b36950c`), malam lain (`18c23926`), pelaminan lain (`ee4941be`),
+   lamaran lain (`6522067b`, tersimpan miring → `--putar 90`), jalan desa lain (`5e9cb6ed`, miring → `--putar 90`),
+   melambai (`418f78ae` → `c6_melambai.webp`), gunungan (`150e907e` → `l1_gunungan.webp`, `9e770558`),
+   papan ukir (`d1e4bd37`, `31be4cbc`), lontar (`20cea75d`, `84f1c259`), joglo (`11c000bd`, `4dc71dee`), gong lain (`1eda886b`).
+   **Beberapa gambar hasil generate tersimpan miring 90°**: selalu periksa orientasi sebelum memproses.
 5. Setiap menambah bab baru: tambahkan juga `<section class="bab" data-bab="ID">` di `index.html` (boleh kosong).
 
 ### Aturan khusus versi sinematik
