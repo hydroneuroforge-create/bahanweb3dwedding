@@ -225,7 +225,8 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
 ### Klip transisi video (Google Flow)
 - Prompt & pasangan frame: `docs/PROMPT_TRANSISI_FLOW.md` dan `bahan web 3d/flow-transisi/TNN_*/` (`1_AWAL.jpg`, `2_AKHIR.jpg`).
   Hasil mentah dari Flow diunggah ke `bahan web 3d/flow-transisi/` (tidak dipakai langsung oleh website).
-- Klip siap pakai ada di `assets/video/transisi/tNN.mp4` (720×1280, H.264, tanpa audio, GOP pendek agar lancar di-seek).
+- Klip siap pakai ada di `assets/video/transisi/tNN.mp4` (540×960, H.264 CRF 28, keyframe tiap 8 frame, tanpa audio; total ±17 MB).
+  Buat ulang semuanya sekaligus: `tools/buat_semua_klip.sh <folder_acuan> [540|720]` (resep tiap klip ada di skrip itu).
   Selalu olah lewat `tools/olah_klip.py`. Alat ini memotong/membalik/menyambung segmen, mengurangi kedip & bintik AI,
   dan **menyamakan warna klip dengan render 3D** di kedua batas (koreksi berubah halus dari awal ke akhir klip):
   ```bash
