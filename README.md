@@ -1,96 +1,74 @@
-# Undangan Pernikahan 3D — Syaif & Sasti
+# Undangan Pernikahan 3D Sinematik — Syaif & Sasti
 
-Website undangan pernikahan satu halaman bertema **Kerajaan Jawa Kartun 3D**.
-Dibuat dengan HTML, CSS, dan JavaScript murni, ditambah Three.js, GSAP, dan Lenis dari CDN. Tidak perlu build step.
+Undangan digital bertema **Kerajaan Jawa Kartun 3D**. Tamu menggulir layar, dan kamera bergerak menembus dunia 3D
+dari fajar di gerbang keraton, melewati kisah cinta dan pendopo pernikahan, sampai malam penuh lampion terbang.
+Dioptimalkan untuk dibuka dari **HP lewat WhatsApp**.
 
 > **Agent/AI yang akan mengedit proyek ini wajib membaca [`AGENTS.md`](AGENTS.md).**
 
-## Fitur
+## Dua versi
 
-| Section | Isi |
+| Halaman | Isi |
 |---|---|
-| Loading | Ornamen kawung & gunungan berputar, progress bar emas mengikuti aset yang termuat |
-| Hero 3D | Latar istana di kanvas Three.js, gapura yang terbuka saat "Buka Undangan", kelopak mawar/melati & kilau emas, parallax mouse, kamera maju saat scroll |
-| Ayat | QS. Ar-Rum (30):21 (teks Arab Utsmani + terjemahan Kemenag) |
-| Mempelai | Foto dalam bingkai lengkung emas, nama, orang tua, Instagram |
-| Acara | Akad & Resepsi, alamat, tombol "Lihat Lokasi" (Google Maps) & "Simpan ke Kalender" |
-| Hitung mundur | Hari/jam/menit/detik ke 26 Des 2026 09.00 WIB, dengan efek flip |
-| Kisah cinta | Timeline gaya gulungan naskah |
-| Galeri | Grid responsif + lightbox (klik, panah keyboard, swipe, Esc) |
-| RSVP & Ucapan | Form tervalidasi, daftar ucapan + statistik (localStorage, siap disambung API) |
-| Hadiah | Rekening BCA & alamat kado, tombol salin + toast |
-| Penutup | Ucapan terima kasih, gapura mini, kredit |
+| `index.html` | **Versi sinematik** (utama): perjalanan 3D penuh, dikendalikan gulir |
+| `klasik.html` | Versi ringan: halaman gulir biasa dengan hero 3D. Dipakai otomatis bila perangkat tidak mendukung WebGL |
 
-Tambahan: navigasi dock bawah, tombol musik gamelan, kursor emas (desktop), dukungan `prefers-reduced-motion`,
-fallback gambar statis bila WebGL tidak tersedia, render 3D berhenti saat tab/hero tidak terlihat.
+## Alur versi sinematik
+
+1. **Sampul**: gunungan wayang dengan tombol "Buka Undangan". Saat ditekan, gong berbunyi, gunungan terbelah, dan gapura terbuka.
+2. **Gerbang Keraton** (fajar): Bismillah dan salam.
+3. **Undangan** (pagi berkabut): ayat QS. Ar-Rum (30):21 pada lontar, lalu nama mempelai.
+4. **Kisah Cinta**: awal bertemu di klinik terapi anak (2023), saling menguatkan, lamaran (15 Agustus 2026), menuju halal.
+5. **Mempelai**: kamera menyorot Syaif lalu Sasti, dengan nama, orang tua, dan Instagram.
+6. **Hari Bahagia**: akad, resepsi, hitung mundur, lokasi (tombol Maps & simpan ke kalender).
+7. **Galeri** (senja di atas air): foto dalam bingkai emas. Ketuk foto untuk memperbesar.
+8. **Doa & Tanda Kasih**: RSVP & ucapan (lembar dialog), rekening BCA, dan alamat kado.
+9. **Terima Kasih** (malam): lampion terbang dan kembang api.
+
+Efek: latar 2.5D dengan peta kedalaman (parallax nyata), langit dinamis (awan, matahari, bintang), kabut,
+berkas sinar, kelopak bunga, kilau emas, kunang-kunang, burung kuntul, bloom, dan transisi kabut/cahaya.
+Suara: gamelan Kraton, gong, kicau burung, gemericik air, dan jangkrik, dengan volume yang berganti mengikuti adegan.
+Kualitas grafis turun otomatis bila HP kewalahan.
 
 ## Struktur file
 
 ```
 .
-├── index.html                 # struktur & semua teks halaman
-├── css/style.css              # gaya (variabel warna di :root)
-├── js/
-│   ├── config.js              # DATA: aset, galeri, tanggal, maps, penyimpanan
-│   ├── scene.js               # scene 3D Three.js
-│   └── main.js                # animasi & fitur interaktif
+├── index.html                  # versi sinematik: sampul + teks tiap adegan + dialog
+├── css/sinema.css
+├── js/sinema/
+│   ├── cerita.js               # NASKAH: bab, kamera, latar, efek, suara, galeri, data acara
+│   ├── dunia.js                # mesin Three.js
+│   └── main.js                 # gulir, teks, suara, menu, RSVP, dll.
+├── klasik.html, css/style.css, js/config.js, js/scene.js, js/main.js   # versi klasik
 ├── assets/
-│   ├── images/                # gambar teroptimasi (WebP)
-│   │   └── gallery/           # foto galeri (gNN.webp + gNN_thumb.webp)
-│   └── audio/                 # musik gamelan (OGG + MP3)
-├── tools/optimize_images.py   # skrip optimasi foto
-├── bahan web 3d/              # aset asli resolusi penuh (arsip, tidak dipakai langsung)
-├── AGENTS.md                  # aturan untuk AI agent
-└── .nojekyll                  # untuk GitHub Pages
+│   ├── scenes/                 # latar + peta kedalaman + potongan tokoh (WebP)
+│   ├── images/                 # galeri, gapura, og-image, favicon
+│   └── audio/                  # gamelan + sfx/ (gong, suara alam)
+├── tools/
+│   ├── prepare_scene_assets.py # peta kedalaman & hapus latar (model AI, offline)
+│   └── optimize_images.py      # kompres foto galeri
+├── docs/PROMPT_GAMBAR.md       # prompt Nano Banana untuk gambar adegan berikutnya
+├── bahan web 3d/               # aset asli (arsip) — gambar baru diunggah ke bahan web 3d/v2/
+└── AGENTS.md                   # aturan untuk AI agent
 ```
 
 ## Cara menjalankan
 
-Scene 3D memuat tekstur, jadi website **perlu dibuka lewat server lokal**.
-Jika `index.html` dibuka dengan double-click (`file://`), website tetap berjalan tetapi hero memakai gambar statis tanpa efek 3D.
-
-Pilih salah satu cara:
+Perlu server lokal karena tekstur 3D tidak bisa dimuat dari `file://`.
 
 ```bash
-# Python (sudah ada di macOS/Linux)
 python3 -m http.server 8000
-# lalu buka http://localhost:8000
+# buka http://localhost:8000
 ```
 
-- **VS Code**: pasang ekstensi *Live Server*, klik kanan `index.html` → *Open with Live Server*.
-- **Node**: `npx serve .`
+Untuk melihat tampilan HP di laptop: Chrome → `Cmd/Ctrl + Option/Shift + I` → ikon ponsel → pilih iPhone 12/13/14.
 
-## Aset & ukuran rekomendasi
+## Menambah gambar adegan
 
-| File | Kegunaan | Rekomendasi |
-|---|---|---|
-| `assets/images/palace_bg.webp` | Latar 3D hero (desktop) | 2048×1143, 16:9, ≤ 250 KB |
-| `assets/images/palace_bg_mobile.webp` | Latar hero (mobile & fallback) | 1280×714, ≤ 120 KB |
-| `assets/images/gate_left.webp`, `gate_right.webp` | Gapura 3D & ornamen penutup | Latar **transparan**, tinggi ~1100px |
-| `assets/images/batik_pattern.webp` | Tekstur batik (tile seamless) | 1024×1024 |
-| `assets/images/groom.webp`, `bride.webp` | Foto mempelai | Potret 3:4, ~660×880 |
-| `assets/images/gallery/gNN.webp` | Foto galeri (lightbox) | Lebar 1600px, ≤ 250 KB |
-| `assets/images/gallery/gNN_thumb.webp` | Thumbnail galeri | Lebar 720px, ≤ 60 KB |
-| `assets/images/pavilion_bg.webp`, `palace_building_bg.webp` | Latar section Acara & Penutup | Lebar 1600px |
-| `assets/images/og-image.jpg` | Pratinjau saat link dibagikan | 1200×630 |
-| `assets/audio/gamelan-kraton.ogg` / `.mp3` | Musik latar | OGG utama, MP3 cadangan |
-
-Semua gambar di atas dihasilkan dari aset asli di `bahan web 3d/` (2752×1536). Total ukurannya turun dari ±19 MB menjadi ±2 MB.
-
-### Menambah foto galeri
-
-```bash
-pip install pillow
-python3 tools/optimize_images.py foto1.jpg foto2.jpg
-```
-Tempel baris yang dicetak ke array `GALLERY` di `js/config.js`, lalu tulis `alt` untuk tiap foto. Detail ada di `AGENTS.md` bagian 4.
-
-## Mengubah data
-
-- **Teks** (nama, orang tua, kisah, ucapan): edit `index.html`.
-- **Tanggal countdown, link maps, kalender, galeri, musik, penyimpanan**: edit `js/config.js`.
-- **Warna & font**: variabel di bagian atas `css/style.css`.
-- **Suasana 3D** (jumlah kelopak, kabut, cahaya, parallax): objek `SETTINGS` di `js/scene.js`.
+1. Buat gambar dengan prompt di [`docs/PROMPT_GAMBAR.md`](docs/PROMPT_GAMBAR.md), lalu unggah ke `bahan web 3d/v2/`.
+2. Proses dengan `tools/prepare_scene_assets.py` (`depth` untuk latar, `cutout --white` untuk tokoh/objek).
+3. Daftarkan di `js/sinema/cerita.js`. Langkah lengkap ada di `AGENTS.md` bagian 9.
 
 ## Deploy
 
@@ -98,7 +76,13 @@ GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / root**.
 
 ## Kredit
 
-- Musik: "Gamelan angka 2 Kraton Ngayogyakarta" oleh RTB45, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gamelan_angka_2_Kraton_Ngayogyakarta.ogg), lisensi [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Musik: "Gamelan angka 2 Kraton Ngayogyakarta" oleh RTB45, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gamelan_angka_2_Kraton_Ngayogyakarta.ogg), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Gong: "Gong GAp (Casa da Musica's Javanese gamelan)" oleh Digitópia Casa da Música, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gong_GAp_(Casa_da_Musica%27s_Javanese_gamelan).ogg), Artistic License 2.0.
+- Kicau burung: "Bourne Woods 2020-04-26 0815a" oleh Robert EA Harvey, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Bourne_Woods_2020-04-26_0815a.mp3), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+- Gemericik air: "Shallow small river with stony riverbed" oleh stephan, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Shallow_small_river_with_stony_riverbed.ogg), domain publik.
+- Jangkrik: "Night original format" oleh Fortunamarco2003, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Night_original_format.wav), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+  File suara diubah formatnya menjadi MP3 mono dan ujungnya disilang-pudar agar bisa diulang tanpa jeda.
+- Model AI (hanya untuk menyiapkan aset, tidak dimuat di website): Depth Anything V2 Small (Apache-2.0), ISNet general-use dari rembg (MIT/Apache-2.0).
 - Teks ayat & terjemahan: mushaf Utsmani dan terjemahan Kementerian Agama RI.
-- Library: [Three.js](https://threejs.org) (MIT), [GSAP](https://gsap.com) (lisensi standar GSAP, gratis), [Lenis](https://github.com/darkroomengineering/lenis) (MIT).
-- Font: Cinzel, Cormorant Garamond, Poppins, Amiri Quran (Google Fonts, SIL OFL).
+- Library: [Three.js](https://threejs.org) (MIT); versi klasik juga memakai [GSAP](https://gsap.com) dan [Lenis](https://github.com/darkroomengineering/lenis) (MIT).
+- Font: Cinzel, Cormorant Garamond, Great Vibes, Poppins, Amiri Quran (Google Fonts, SIL OFL).
