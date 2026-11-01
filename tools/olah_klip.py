@@ -118,6 +118,29 @@ def cari_frame(frame, acuan, rentang):
     return terbaik, skor
 
 
+def beri_cahaya(frame, teks):
+    """Kilau hangat (cahaya pagi yang membesar lalu surut) di rentang waktu tertentu."""
+    from PIL import ImageFilter
+    bagian = [float(x) for x in teks.split(':')]
+    t0, t1 = bagian[0], bagian[1]
+    kuat = bagian[2] if len(bagian) > 2 else 0.45
+    hangat = np.array([1.0, 0.9, 0.74], np.float32)
+    hasil = list(frame)
+    for i in range(int(t0 * FPS), min(int(t1 * FPS) + 1, len(frame))):
+        u = (i / FPS - t0) / max(t1 - t0, 1e-3)
+        w = kuat * np.sin(np.pi * min(max(u, 0), 1)) ** 2
+        if w <= 0.002:
+            continue
+        x = frame[i].astype(np.float32) / 255.0
+        kabur = np.asarray(Image.fromarray(frame[i]).filter(ImageFilter.GaussianBlur(22)), np.float32) / 255.0
+        # kabur lembut + diangkat ke arah putih hangat (seperti silau matahari)
+        silau = 1 - (1 - kabur) * (1 - hangat * 0.55)
+        y = x * (1 - w) + silau * w
+        hasil[i] = (np.clip(y, 0, 1) * 255 + 0.5).astype(np.uint8)
+    print(f'  kilau {t0:.2f}-{t1:.2f} dtk, kuat {kuat}')
+    return hasil
+
+
 def statistik(img):
     x = kecil(img).reshape(-1, 3)
     return x.mean(0), x.std(0)
@@ -145,12 +168,17 @@ def main():
     ap.add_argument('--cari-awal', help='potong awal klip di frame paling mirip gambar ini (cari di 60%% awal)')
     ap.add_argument('--cari-akhir', help='potong akhir klip di frame paling mirip gambar ini (cari di 40%% akhir)')
     ap.add_argument('--kekuatan', type=float, default=0.85, help='kekuatan penyamaan warna 0..1')
+    ap.add_argument('--cahaya', action='append', default=[],
+                    help='MULAI:SELESAI[:KUAT] (detik, sebelum dipotong). Kilau hangat lembut untuk menyamarkan '
+                         'momen berubah (morph) sehingga terasa seperti peralihan waktu yang disengaja')
     ap.add_argument('--crf', type=int, default=26)
     ap.add_argument('--keluar', required=True)
     a = ap.parse_args()
 
     segmen = [baca_segmen(s) for s in a.segmen]
     frame = baca_frame(segmen, a.silang)
+    for c in a.cahaya:
+        frame = beri_cahaya(frame, c)
     n = len(frame)
     i0, i1 = 0, n - 1
     if a.cari_awal:

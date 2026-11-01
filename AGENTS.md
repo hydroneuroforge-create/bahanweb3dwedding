@@ -236,10 +236,12 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
   `batas/tNN_awal.png` & `tNN_akhir.png` = screenshot kanvas 3D (360×640, tanpa teks/vinyet/video) tepat di akhir bab asal
   dan di awal bab tujuan. `--cari-awal`/`--cari-akhir` memotong klip di frame yang paling mirip gambar acuan
   (dipakai di T11 agar mulai dari ujung lorong galeri).
-  Resep yang dipakai: T01 utuh; T02 = T02A 0–6 + T02B 0–6 dibalik (silang 0,6); T04 = T04A 0–7,7 + T04B 0–8 dibalik (silang 0,7);
-  T08, T10, T12 utuh; T11 `--cari-awal t11_awal.png`.
-- Belum dipasang: T03, T05, T06, T07 (belum ada video). T09 sengaja tidak dipakai: di akhir klip mempelai wanita tidak
-  berhijab, sedangkan di adegan pelaminan berhijab. Buat ulang gambar Mempelai (berhijab), lalu T08 & T09.
+  `--cahaya MULAI:SELESAI:KUAT` menambah kilau hangat lembut untuk menyamarkan momen morph (mis. baju berganti).
+  Resep yang dipakai: T01, T05, T07, T08, T10, T12 utuh; T02 = T02A 0–6 + T02B 0–6 dibalik (silang 0,6);
+  T03 `--cahaya 4.0:6.2:0.35`; T04 = T04A 0–7,7 + T04B 0–8 dibalik (silang 0,7); T06 `--cahaya 1.7:3.5:0.55`
+  (kemeja mempelai pria berganti dari polos ke batik); T11 `--cari-awal t11_awal.png`.
+- T09 sengaja tidak dipakai: di akhir klip mempelai wanita tidak berhijab, sedangkan di adegan pelaminan berhijab.
+  Buat ulang gambar Mempelai (berhijab), lalu T08 & T09. Batas mempelai → acara memakai transisi `tembus`.
 - Bila satu klip first/last frame selalu glitch (posisi kamera dua adegan terlalu berbeda), buat dua klip dengan start frame saja
   yang sama-sama berakhir di benda penutup layar (daun, kabut). Klip B dibalik lalu disambung (`reverse` + `xfade`), seperti `t02.mp4`.
 - Pasang di bab asal: `klip: { src, panjang }` di `cerita.js`. `panjang` = ruang gulir tambahan ≈ 0,3 × durasi video (detik).

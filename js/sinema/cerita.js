@@ -222,20 +222,21 @@ export const BAB = [
     ],
     kamera: [
       { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T02
-      { t: 0.5, uv: [0.5, 0.55], jarak: 46 },
-      { t: 0.9, uv: [0.5, 0.54], jarak: 36 }
+      { t: 0.5, uv: [0.5, 0.55], jarak: 52 },
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T03
     ],
     efek: { kelopak: 0.8, kilau: 0.5 },
     suara: { burung: 0.9, air: 0.2 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.53] } // menembus cahaya di ujung lorong desa
+    transisi: { jenis: 'tembus', ke: [0.5, 0.53] }, // menembus cahaya di ujung lorong desa
+    klip: { src: 'assets/video/transisi/t03.mp4', panjang: 2.6 } // video Flow: lorong desa -> cahaya -> rumah joglo klinik
   },
   {
     id: 'pintuKlinik', judul: 'Kisah Kami', durasi: 2, waktu: 'pagi',
     latar: P9('pintuKlinik'),
     lapisan: [],
     kamera: [
-      { t: 0.05, uv: [0.5, 0.4], jarak: 56 },
-      { t: 0.5, uv: [0.5, 0.48], jarak: 46 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T03
+      { t: 0.5, uv: [0.5, 0.48], jarak: 50 },
       { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T04
     ],
     efek: { kelopak: 0.5, kilau: 0.4 },
@@ -252,37 +253,40 @@ export const BAB = [
     kamera: [
       { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T04
       { t: 0.5, uv: [0.56, 0.5], jarak: 50, geser: [-0.8, 0] },
-      { t: 0.9, uv: [0.57, 0.52], jarak: 44, geser: [0.6, 0] }
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T05
     ],
     efek: { kilau: 0.6, kelopak: 0.25 },
     suara: { burung: 0.3 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.3] } // menembus jendela terang di belakang mereka
+    transisi: { jenis: 'tembus', ke: [0.5, 0.3] }, // menembus jendela terang di belakang mereka
+    klip: { src: 'assets/video/transisi/t05.mp4', panjang: 2.6 } // video Flow: bergandengan keluar jendela -> pematang sawah
   },
   {
     id: 'sawah', judul: 'Saling Menguatkan', durasi: 3, waktu: 'siangHangat',
     latar: P9('sawah', { kedalaman: 12 }),
     lapisan: [],
     kamera: [
-      { t: 0.05, uv: [0.5, 0.42], jarak: 56 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T05
       { t: 0.5, uv: [0.54, 0.55], jarak: 50 },
-      { t: 0.9, uv: [0.52, 0.46], jarak: 44 }
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T06
     ],
     efek: { kelopak: 0.5, burung: 1, kilau: 0.3 },
     suara: { burung: 1, air: 0.7 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.38] } // menembus rumah joglo di ujung pematang
+    transisi: { jenis: 'tembus', ke: [0.5, 0.38] }, // menembus rumah joglo di ujung pematang
+    klip: { src: 'assets/video/transisi/t06.mp4', panjang: 2.6 } // video Flow: berjalan di pematang -> kilau senja -> lamaran
   },
   {
     id: 'lamaran', judul: 'Lamaran', durasi: 3, waktu: 'emasSore',
     latar: P9('lamaran'),
     lapisan: [],
     kamera: [
-      { t: 0.05, uv: [0.5, 0.42], jarak: 56 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T06
       { t: 0.5, uv: [0.46, 0.6], jarak: 48, geser: [-0.6, 0] },
-      { t: 0.9, uv: [0.48, 0.6], jarak: 42 }
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T07
     ],
     efek: { kelopak: 1, kilau: 0.8 },
     suara: { burung: 0.4 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.42] } // menembus pintu rumah berhias janur
+    transisi: { jenis: 'tembus', ke: [0.5, 0.42] }, // menembus pintu rumah berhias janur
+    klip: { src: 'assets/video/transisi/t07.mp4', panjang: 2.6 } // video Flow: naik melewati atap joglo -> alun-alun
   },
   {
     id: 'alun', judul: 'Menuju Halal', durasi: 2.4, waktu: 'siangCerah',
@@ -291,7 +295,7 @@ export const BAB = [
       { potongan: 'kuntul', pos: [14, 10, -28], tinggi: 5, cermin: true, gerak: [{ t: [0.0, 1.0], ke: { x: -14, y: 13 } }] }
     ],
     kamera: [
-      { t: 0.05, uv: [0.5, 0.36], jarak: 56 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T07
       { t: 0.5, uv: [0.5, 0.5], jarak: 50 },
       { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T08
     ],
