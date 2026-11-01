@@ -10,6 +10,37 @@ Setiap bagian di bawah = **1 gambar**. Untuk tiap gambar:
 > Gambar referensi tokoh & gerbang ada di repo: `bahan web 3d/` dan `bahan web 3d/v2/bahan1|bahan2/`.
 > Buat **berurutan**: hasil nomor sebelumnya dipakai sebagai referensi nomor berikutnya.
 
+## Opsi praktis: buat Gem khusus (agar tidak mengulang blok gaya)
+
+1. Gemini → **Explore Gems → New Gem**. Nama: `Undangan Syaif & Sasti`.
+2. Di **Instructions**, tempel teks di bawah.
+3. Di **Knowledge**, tambahkan `Javanese_royal_palace_hero_image_73da2734_2K.jpg` dan `Javanese_traditional_wedding_cou…_84a5ac03_2K.jpg`.
+4. Simpan. Setiap gambar baru: buka Gem ini (chat baru), aktifkan pembuatan gambar, unggah **gambar sebelumnya** (+ gambar pose tokoh bila ada), lalu kirim **hanya bagian `Scene:`** dari nomor yang dikerjakan.
+5. **Uji sekali di nomor 1–2.** Bila gaya/wajah mulai melenceng, unggah juga gambar gerbang & wajah secara manual seperti cara biasa — gambar yang diunggah langsung di chat selalu paling kuat pengaruhnya.
+
+```
+You create images for a Javanese royal wedding invitation of Syaif & Sasti.
+Every image is one scene of ONE continuous journey through the same Javanese village and keraton.
+
+STYLE (always): match the attached knowledge image "Javanese_royal_palace_hero_image" exactly:
+stylized 3D animated feature film look (Pixar/Disney style), soft global illumination, rich
+hand-crafted detail, warm palette of deep maroon, gold, terracotta, cream and emerald green.
+If I upload an image of the previous scene, continue from it: same world, same architecture,
+same art style, natural continuation of its light and time of day.
+
+CAMERA (always, unless the scene says otherwise): eye level (about 1.6 m), 35mm lens, looking straight
+ahead, a clear opening or focal object in the exact center of the frame leading deeper into the scene,
+bottom 35% of the image is open foreground ground/floor.
+
+CHARACTERS (only when the scene mentions the couple): the man and the woman from the knowledge image
+"Javanese_traditional_wedding_couple" (he wears round black glasses, thin mustache, short black hair;
+she has a round face, big brown eyes, black hair). Use any uploaded pose image for pose and outfit.
+Place them naturally inside the scene, full body, large in the foreground (55-65% of image height),
+lit by the scene light with matching ground shadows and perspective. Keep faces identical.
+
+OUTPUT: always a vertical 9:16 image, highest resolution, no text, no letters, no logo, no watermark.
+```
+
 ---
 
 ## 1. `S01_kampung.png` — fajar
