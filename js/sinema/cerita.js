@@ -241,14 +241,14 @@ export const BAB = [
     id: 'klinik', judul: 'Awal Bertemu', durasi: 2.8, waktu: 'ruangTerang',
     latar: { gambar: 'klinik', z: -40, tinggi: 60, kedalaman: 10, warna: HANGAT },
     lapisan: [
-      { potongan: 'terapis', uv: [0.52, 0.9], maju: 8, tinggi: 15,
+      { potongan: 'terapis', uv: [0.52, 0.92], maju: 18, tinggi: 15, bayangan: true, rona: 0.2,
         gerak: [{ t: [0.1, 0.3], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] },
       { jenis: 'sinar', pos: [-8, 12, -30], ukuran: [20, 40], kekuatan: 0.42, rz: 0.4 }
     ],
     kamera: [
-      { t: 0.06, uv: [0.5, 0.3], jarak: 56 },
-      { t: 0.45, fokus: 0, isi: 0.5, naik: 0.34, geser: [-1.5, 0] },
-      { t: 0.94, fokus: 0, isi: 0.64, naik: 0.32, geser: [1, 0] }
+      { t: 0.04, uv: [0.5, 0.36], jarak: 56 },
+      { t: 0.42, fokus: 0, isi: 0.6, naik: 0.38, geser: [-1.2, 0], kabur: 1.6 },
+      { t: 0.94, fokus: 0, isi: 0.66, naik: 0.36, geser: [0.8, 0], kabur: 2.2 }
     ],
     efek: { kilau: 0.5, kelopak: 0.2 },
     suara: { burung: 0.25 },
@@ -259,12 +259,12 @@ export const BAB = [
     id: 'sawah', judul: 'Saling Menguatkan', durasi: 2.6, waktu: 'siangHangat',
     latar: { gambar: 'sawah', z: -40, tinggi: 60, kedalaman: 14, warna: NORMAL },
     lapisan: [
-      { potongan: 'jalan', uv: [0.48, 0.86], maju: 12, tinggi: 10,
+      { potongan: 'jalan', uv: [0.48, 0.9], maju: 20, tinggi: 10, bayangan: true, rona: 0.25,
         gerak: [{ t: [0.04, 0.2], dari: { o: 0 }, ke: { o: 1 } }, { t: [0.2, 1], ke: { y: 3, z: -12, x: 0.6 } }] }
     ],
     kamera: [
-      { t: 0.04, fokus: 0, isi: 0.66, naik: 0.3 },
-      { t: 0.95, fokus: 0, isi: 0.66, naik: 0.3, dz: -6, dy: 2.2 }
+      { t: 0.04, fokus: 0, isi: 0.72, naik: 0.3, kabur: 1.8 },
+      { t: 0.95, fokus: 0, isi: 0.7, naik: 0.3, dz: -6, dy: 2.2, kabur: 1.6 }
     ],
     efek: { kelopak: 0.5, burung: 1, kilau: 0.3 },
     suara: { burung: 1, air: 0.6 },
@@ -373,13 +373,13 @@ export const BAB = [
     id: 'penutup', judul: 'Terima Kasih', durasi: 3.4, waktu: 'malam',
     latar: { gambar: 'malam', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL },
     lapisan: [
-      { potongan: 'lepasLampion', uv: [0.5, 0.92], maju: 8, tinggi: 14, cahaya: 0.85,
+      { potongan: 'lepasLampion', uv: [0.5, 0.94], maju: 18, tinggi: 14, cahaya: 0.9, bayangan: true, rona: 0.3,
         gerak: [{ t: [0.06, 0.3], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] }
     ],
     kamera: [
       { t: 0.04, uv: [0.5, 0.18], jarak: 56 },
-      { t: 0.5, fokus: 0, isi: 0.58, naik: 0.33 },
-      { t: 1.0, fokus: 0, isi: 0.6, naik: 0.36, geser: [0, 0.8] }
+      { t: 0.5, fokus: 0, isi: 0.64, naik: 0.38, kabur: 1.8 },
+      { t: 1.0, fokus: 0, isi: 0.66, naik: 0.4, geser: [0, 0.8], kabur: 2.2 }
     ],
     efek: { lampion: 1, kembangApi: 1, kunang: 0.5, kilau: 0.4 },
     suara: { jangkrik: 1 },

@@ -213,7 +213,7 @@ function buatLatar(cfg, tex, segmen) {
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
       uPeta: { value: null }, uDalam: { value: null }, uSkalaDalam: { value: cfg.kedalaman },
       uTint: { value: new THREE.Vector3(...warna.tint) }, uLift: { value: new THREE.Vector3(...warna.lift) },
-      uSaturasi: { value: warna.saturasi }, uOpasitas: { value: 1 }
+      uSaturasi: { value: warna.saturasi }, uOpasitas: { value: 1 }, uKabur: { value: 0 }
     }]),
     vertexShader: /* glsl */`
       uniform sampler2D uDalam; uniform float uSkalaDalam;
@@ -229,11 +229,17 @@ function buatLatar(cfg, tex, segmen) {
         #include <fog_vertex>
       }`,
     fragmentShader: /* glsl */`
-      uniform sampler2D uPeta; uniform vec3 uTint, uLift; uniform float uSaturasi, uOpasitas;
+      uniform sampler2D uPeta; uniform vec3 uTint, uLift; uniform float uSaturasi, uOpasitas, uKabur;
       varying vec2 vUv;
       #include <fog_pars_fragment>
       void main(){
-        vec3 c = texture2D(uPeta, vUv).rgb;
+        // kabur seperti lensa kamera (depth of field) saat kamera menyorot tokoh
+        vec3 c = texture2D(uPeta, vUv, uKabur).rgb;
+        if (uKabur > 0.05) {
+          vec2 o = vec2(0.0018, 0.0011) * uKabur;
+          c = (c * 2.0 + texture2D(uPeta, vUv + o, uKabur).rgb + texture2D(uPeta, vUv - o, uKabur).rgb
+             + texture2D(uPeta, vUv + vec2(-o.x, o.y), uKabur).rgb + texture2D(uPeta, vUv + vec2(o.x, -o.y), uKabur).rgb) / 6.0;
+        }
         float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
         c = mix(vec3(l), c, uSaturasi) * uTint + uLift;
         float tepi = smoothstep(0.0, 0.05, vUv.x) * smoothstep(1.0, 0.95, vUv.x)
@@ -268,8 +274,25 @@ function buatPotongan(cfg, tex) {
     color: new THREE.Color(terang * 1.02, terang * 0.95, terang * 0.9)
   });
   const mesh = new THREE.Mesh(geo, mat);
+  mesh.userData.terang = terang;
+  if (cfg.bayangan) mesh.add(Object.assign(buatBayangan(w * 0.95), { renderOrder: -1 }));
   if (cfg.pos) mesh.position.set(...cfg.pos);
   return mesh;
+}
+
+// Bayangan lembut di bawah kaki tokoh agar terasa berdiri di lantai
+let _teksturBayangan = null;
+function buatBayangan(lebar) {
+  _teksturBayangan ||= kanvas(256, 128, (c, w, h) => {
+    const g = c.createRadialGradient(w / 2, h / 2, 2, w / 2, h / 2, w / 2);
+    g.addColorStop(0, 'rgba(0,0,0,0.75)'); g.addColorStop(0.45, 'rgba(0,0,0,0.38)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = g; c.save(); c.scale(1, h / w); c.fillRect(0, 0, w, w); c.restore();
+  });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(lebar, lebar * 0.32),
+    new THREE.MeshBasicMaterial({ map: _teksturBayangan, transparent: true, depthWrite: false, opacity: 0.55, fog: true, color: 0x2a1408 }));
+  m.rotation.x = -Math.PI / 2;
+  m.position.y = 0.02;
+  return m;
 }
 
 // Membaca nilai peta kedalaman di titik (u,v) — untuk menaruh tokoh tepat "berdiri" di lantai gambar
@@ -926,7 +949,7 @@ export class Dunia {
         const cx = l.pos[0];
         const cy = l.pos[1] + h / 2 + h * (k.naik || 0) + (k.dy || 0);
         const cz = l.pos[2] + (k.dz || 0);
-        return { t: k.t, pos: new THREE.Vector3(cx + g[0], cy + g[1], cz + jarak), lihat: new THREE.Vector3(cx, cy, cz) };
+        return { t: k.t, kabur: k.kabur || 0, pos: new THREE.Vector3(cx + g[0], cy + g[1], cz + jarak), lihat: new THREE.Vector3(cx, cy, cz) };
       }
       if (k.uv && latar) {
         const { W, H } = latar.userData;
@@ -936,9 +959,9 @@ export class Dunia {
         const y = (0.5 - k.uv[1]) * H;
         const zL = b.latar.z + b.latar.kedalaman * 0.35;
         const g = k.geser || [0, 0];
-        return { t: k.t, pos: new THREE.Vector3(x + g[0], y + g[1], zL + jarak), lihat: new THREE.Vector3(x, y, zL) };
+        return { t: k.t, kabur: k.kabur || 0, pos: new THREE.Vector3(x + g[0], y + g[1], zL + jarak), lihat: new THREE.Vector3(x, y, zL) };
       }
-      return { t: k.t, pos: new THREE.Vector3(...k.pos), lihat: new THREE.Vector3(...k.lihat) };
+      return { t: k.t, kabur: k.kabur || 0, pos: new THREE.Vector3(...k.pos), lihat: new THREE.Vector3(...k.lihat) };
     });
   }
 
@@ -954,6 +977,11 @@ export class Dunia {
         .addScaledVector(p2, -1.5 * u3 + 2 * u2 + 0.5 * u)
         .addScaledVector(p3, 0.5 * u3 - 0.5 * u2);
     };
+    // nilai kabur latar: interpolasi halus antar titik kunci
+    let j = 0;
+    while (j < n - 1 && t > K[j + 1].t) j++;
+    const kb = j >= n - 1 ? K[n - 1].kabur : (t <= K[0].t ? K[0].kabur : K[j].kabur + (K[j + 1].kabur - K[j].kabur) * smooth(0, 1, (t - K[j].t) / (K[j + 1].t - K[j].t)));
+    this._kabur = kb || 0;
     if (n === 1 || t <= K[0].t || t >= K[n - 1].t) {
       const k = t <= K[0].t ? K[0] : K[n - 1];
       outPos.copy(k.pos); outLihat.copy(k.lihat);
@@ -1049,6 +1077,15 @@ export class Dunia {
 
     // Lapisan bab aktif
     b.lapisanObj.forEach((o) => this.gerakkanLapisan(o, t));
+    // Tokoh & objek diberi rona cahaya suasana (matahari + kabut) agar menyatu dengan latar
+    this._rona ||= new THREE.Color();
+    this._rona.copy(L.uWarnaMatahari.value).lerp(this.scene.fog.color, 0.5);
+    b.lapisanObj.forEach((o) => {
+      if (!o.userData.cfg.potongan) return;
+      const k = o.userData.cfg.rona ?? 0.22;
+      const tr = o.userData.terang;
+      o.material.color.setRGB(tr, tr, tr).lerp(this._rona.clone().multiplyScalar(tr * 1.05), k);
+    });
     this.kabutSemua.forEach(({ obj, l }) => {
       if (!obj.parent.visible) return;
       obj.material.color.copy(this.scene.fog.color).lerp(L.uWarnaAwan.value, 0.5);
@@ -1067,6 +1104,7 @@ export class Dunia {
     this._pos ||= new THREE.Vector3();
     this._lihat ||= new THREE.Vector3();
     this.posisiKamera(b, t, this._pos, this._lihat);
+    if (b.latarObj) b.latarObj.material.uniforms.uKabur.value = this._kabur;
     const pn = this.penunjuk;
     pn.hx = damp(pn.hx, pn.x, 2.5, dt || 1);
     pn.hy = damp(pn.hy, pn.y, 2.5, dt || 1);
