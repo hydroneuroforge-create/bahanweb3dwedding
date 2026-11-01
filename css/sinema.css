@@ -492,3 +492,21 @@ select.field__input {
 }
 .tirai__kain--kiri .tirai__gunungan { right: 0; background-position: left center; }
 .tirai__kain--kanan .tirai__gunungan { left: 0; background-position: right center; }
+
+/* ===================== LAYAR LEBAR: panggung portrait di tengah =====================
+   Semua adegan digambar vertikal 9:16, jadi di laptop undangan tampil sebagai
+   "layar sinema" tegak di tengah dengan latar batik gelap di kiri-kanan. */
+@media (min-aspect-ratio: 4/5) {
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(60% 80% at 50% 50%, rgba(91, 30, 30, .35), rgba(20, 5, 5, .92) 70%),
+      url("../assets/images/batik_pattern.webp") center / 320px repeat, var(--maroon-deep);
+    background-blend-mode: normal, multiply, normal;
+  }
+  .dunia, .vinyet {
+    left: 50%; right: auto; width: min(100vw, 62.5vh); transform: translateX(-50%);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, .55), 0 0 0 7px rgba(42, 14, 14, .9), 0 0 0 8px rgba(212, 175, 55, .35), 0 30px 80px rgba(0, 0, 0, .7);
+  }
+  :root { --lebar-isi: min(62.5vh - 2.5rem, 440px); }
+}

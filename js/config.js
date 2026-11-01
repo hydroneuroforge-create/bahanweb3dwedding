@@ -20,8 +20,7 @@ const ASSETS = {
   bridePhoto: 'assets/images/bride.webp',
   // Musik: browser memilih format pertama yang didukung (OGG lebih kecil, MP3 untuk Safari lama)
   music: [
-    { src: 'assets/audio/gamelan-kraton.ogg', type: 'audio/ogg' },
-    { src: 'assets/audio/gamelan-kraton.mp3', type: 'audio/mpeg' }
+    { src: 'assets/audio/lagu-utama.mp3', type: 'audio/mpeg' }
   ]
 };
 
@@ -32,11 +31,12 @@ const ASSETS = {
    - w, h  : ukuran asli rasio foto (dipakai agar grid tidak "loncat" saat memuat)
    - alt   : deskripsi singkat foto (wajib, untuk aksesibilitas) */
 const GALLERY = [
-  { full: 'assets/images/gallery/g01.webp', thumb: 'assets/images/gallery/g01_thumb.webp', w: 1600, h: 893, alt: 'Syaif dan Sasti berbusana pengantin Jawa hitam dan merah di pendopo keraton' },
-  { full: 'assets/images/gallery/g02.webp', thumb: 'assets/images/gallery/g02_thumb.webp', w: 1600, h: 893, alt: 'Syaif dan Sasti bergandengan tangan berbusana beludru biru dan kebaya krem' },
-  { full: 'assets/images/gallery/g03.webp', thumb: 'assets/images/gallery/g03_thumb.webp', w: 1600, h: 893, alt: 'Pendopo joglo dengan lampion menyala di taman keraton saat senja' },
-  { full: 'assets/images/gallery/g04.webp', thumb: 'assets/images/gallery/g04_thumb.webp', w: 1600, h: 893, alt: 'Kompleks istana Jawa berselimut kabut pagi' },
-  { full: 'assets/images/gallery/g05.webp', thumb: 'assets/images/gallery/g05_thumb.webp', w: 1600, h: 893, alt: 'Gapura bentar keraton dengan patung penjaga saat matahari terbenam' }
+  { full: 'assets/images/gallery/g01.webp', thumb: 'assets/images/gallery/g01_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti pertama kali bertemu sebagai terapis anak di ruang terapi sensori' },
+  { full: 'assets/images/gallery/g02.webp', thumb: 'assets/images/gallery/g02_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti berjalan bergandengan di pematang sawah' },
+  { full: 'assets/images/gallery/g03.webp', thumb: 'assets/images/gallery/g03_thumb.webp', w: 1000, h: 1792, alt: 'Syaif berlutut melamar Sasti di teras rumah berhias seserahan' },
+  { full: 'assets/images/gallery/g04.webp', thumb: 'assets/images/gallery/g04_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti berbusana pengantin Jawa di depan gebyok pelaminan' },
+  { full: 'assets/images/gallery/g05.webp', thumb: 'assets/images/gallery/g05_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti melepas lampion bersama di bawah langit malam' },
+  { full: 'assets/images/gallery/g06.webp', thumb: 'assets/images/gallery/g06_thumb.webp', w: 1000, h: 1792, alt: 'Kampung halaman Jawa saat fajar dengan gunung dan sawah terasering' },
 ];
 
 /* === DATA ACARA === */

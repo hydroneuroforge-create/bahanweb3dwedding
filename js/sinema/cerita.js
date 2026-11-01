@@ -32,51 +32,49 @@ export const SUSUNAN = {
 };
 
 /* === ASET ===
-   Latar: gambar + peta kedalaman (_depth) dari tools/prepare_scene_assets.py depth
-   Potongan: gambar transparan dari tools/prepare_scene_assets.py cutout --white */
+   Latar v3: gambar adegan bersambung (tokoh sudah tergambar di dalamnya) + peta kedalaman.
+   Dibuat dengan: python3 tools/prepare_scene_assets.py depth <gambar> assets/scenes/v3/<nama> --width 1440 */
 const S = 'assets/scenes/';
+const V3 = 'assets/scenes/v3/';
+const latar = (nama, dir = V3) => ({ src: dir + nama + '.webp', depth: dir + nama + '_depth.webp' });
 export const LATAR = {
-  gerbang:          { src: S + 'gerbang.webp',          depth: S + 'gerbang_depth.webp' },
-  ruangEmas:        { src: S + 'ruang_emas.webp',       depth: S + 'ruang_emas_depth.webp' },
-  kampung:          { src: S + 'b1_kampung.webp',       depth: S + 'b1_kampung_depth.webp' },
-  desa:             { src: S + 'b2_desa.webp',          depth: S + 'b2_desa_depth.webp' },
-  klinik:           { src: S + 'b3_klinik.webp',        depth: S + 'b3_klinik_depth.webp' },
-  lamaran:          { src: S + 'b4_lamaran.webp',       depth: S + 'b4_lamaran_depth.webp' },
-  alun:             { src: S + 'b5_alun.webp',          depth: S + 'b5_alun_depth.webp' },
-  pelaminan:        { src: S + 'b6_pelaminan.webp',     depth: S + 'b6_pelaminan_depth.webp' },
-  lorong:           { src: S + 'b7_lorong.webp',        depth: S + 'b7_lorong_depth.webp' },
-  teratai:          { src: S + 'b8_teratai.webp',       depth: S + 'b8_teratai_depth.webp' },
-  malam:            { src: S + 'b9_malam.webp',         depth: S + 'b9_malam_depth.webp' },
-  sawah:            { src: S + 'b10_sawah.webp',        depth: S + 'b10_sawah_depth.webp' }
+  gerbang:     latar('gerbang', S),           // gerbang keraton (gambar awal)
+  ruangEmas:   latar('ruang_emas', S),        // potret mempelai berbusana navy-krem
+  kampung:     latar('s01_kampung'),
+  desa:        latar('s02_desa'),
+  pintuKlinik: latar('s03_pintu_klinik'),
+  klinik:      latar('s04_klinik'),
+  sawah:       latar('s05_sawah'),
+  lamaran:     latar('s06_lamaran'),
+  alun:        latar('s07_alun'),
+  pelaminan:   latar('s08_pelaminan'),
+  lorong:      latar('s09_lorong'),
+  teratai:     latar('s10_teratai'),
+  malam:       latar('s11_malam')
 };
 
 export const POTONGAN = {
-  gerbangKiri:   'assets/images/gate_left.webp',
-  gerbangKanan:  'assets/images/gate_right.webp',
-  jalan:         S + 'c1_jalan.webp',        // berjalan bergandengan (tampak belakang)
-  terapis:       S + 'c2_terapis.webp',      // terapis anak 2023
-  lamaran:       S + 'c3_lamaran.webp',      // memberi cincin
-  pelaminan:     S + 'c4_pelaminan.webp',    // berdiri bergandengan
-  lepasLampion:  S + 'c5_lampion.webp',      // melepas lampion
-  melambai:      S + 'c6_melambai.webp',
-  kelapa:        S + 'l3_kelapa.webp',
-  daun:          S + 'l2_daun.webp',
-  kuntul:        S + 'l10_kuntul.webp',
-  gong:          S + 'l6_gong.webp',
-  lampion:       S + 'l5_lampion.webp'       // juga dipakai sebagai partikel lampion terbang
+  gerbangKiri:  'assets/images/gate_left.webp',
+  gerbangKanan: 'assets/images/gate_right.webp',
+  kuntul:       S + 'l10_kuntul.webp',
+  gong:         S + 'l6_gong.webp',
+  lampion:      S + 'l5_lampion.webp'   // juga dipakai sebagai partikel lampion terbang
 };
 
 export const SUARA = {
+  // === GANTI LAGU DI SINI === (lihat AGENTS.md bagian 5)
   musik: [
-    { src: 'assets/audio/gamelan-kraton.mp3', type: 'audio/mpeg' },
-    { src: 'assets/audio/gamelan-kraton.ogg', type: 'audio/ogg' }
+    { src: 'assets/audio/lagu-utama.mp3', type: 'audio/mpeg' }
   ],
+  volumeMusik: 0.7,
   gong: 'assets/audio/sfx/gong.mp3',
+  volumeGong: 0.45,
   suasana: {
     burung: 'assets/audio/sfx/amb-burung.mp3',
     air: 'assets/audio/sfx/amb-air.mp3',
     jangkrik: 'assets/audio/sfx/amb-jangkrik.mp3'
-  }
+  },
+  volumeSuasana: 0.22   // suara alam dibuat tipis agar lagu tetap utama
 };
 
 /* === SUASANA WAKTU ===
@@ -156,27 +154,21 @@ export const WAKTU = {
   }
 };
 
-/* Pewarnaan ulang gambar latar (untuk memakai gambar yang sama di waktu berbeda) */
+/* Pewarnaan ulang gambar latar */
 const NORMAL = { tint: [1, 1, 1], lift: [0, 0, 0], saturasi: 1 };
-const HANGAT = { tint: [1.04, 0.98, 0.9], lift: [0.01, 0, 0], saturasi: 1.02 };
+
+/* Pola latar portrait v3 (gambar 9:16, tinggi 60 satuan dunia) */
+const P9 = (gambar, extra = {}) => ({ gambar, z: -40, tinggi: 60, kedalaman: 10, warna: NORMAL, ...extra });
 
 /* === DAFTAR BAB ===
-   Lapisan "potongan" bisa diletakkan dengan:
-     pos:[x,y,z]                -> koordinat langsung; gerak memakai nilai mutlak
-     uv:[u,v] (+ maju)          -> kaki objek berdiri tepat di titik (u,v) gambar latar
-                                   (kedalaman diambil dari peta kedalaman); gerak memakai
-                                   nilai RELATIF (x/y/z = geseran dari posisi itu)
-   tinggi: tinggi objek dalam satuan dunia (gambar latar portrait tingginya 60)
-   cermin: true -> dibalik kiri-kanan
-   efek  : kelopak, kilau, kunang, lampion, burung, kembangApi (0..1)
-   suara : burung, air, jangkrik (0..1)
-   kamera: titik kunci boleh memakai { t, fokus: N, isi, naik, dy, dz, geser } untuk menyorot
-           lapisan ke-N (indeks di array lapisan) sehingga tokoh mengisi "isi" (0..1) tinggi layar.
-           naik = geser titik pandang ke atas (× tinggi tokoh) agar tokoh berada di bagian bawah layar.
-   transisi: { jenis: 'tembus', ke: [u, v] }  (bawaan) -> kamera terbang masuk ke titik (u,v) pada latar
-             (pintu/jendela/jalan) lalu adegan berikutnya mekar dari tengah bukaan itu.
-             Jenis lain: 'tirai' (tirai batik + gunungan) | 'kabut' | 'cahaya' | 'malam'.
-   latar.samakan: false -> jangan samakan kecerahan gambar ini dengan adegan lain (mis. malam) */
+   kamera: { t, uv:[u,v], jarak, geser, kabur }  -> melihat titik (u,v) gambar latar dari jarak tertentu
+           (jarak 52–56 = seluruh gambar tampak; makin kecil makin dekat)
+           { t, pos, lihat } -> koordinat langsung.  { t, fokus: N, isi, naik } -> menyorot lapisan ke-N.
+   transisi: { jenis: 'tembus', ke: [u, v] } -> kamera menembus titik (u,v) lalu adegan berikutnya mekar dari sana.
+             Jenis lain: 'tirai' | 'kabut' | 'cahaya' | 'malam' (jangan dipakai kecuali diminta).
+   latar.samakan: false -> kecerahan gambar tidak disamakan (mis. malam).
+   efek : kelopak, kilau, kunang, lampion, burung, kembangApi (0..1)
+   suara: burung, air, jangkrik (0..1) */
 export const BAB = [
   {
     id: 'gerbang', judul: 'Gerbang Keraton', durasi: 2.4, waktu: 'fajarEmas',
@@ -192,119 +184,110 @@ export const BAB = [
     kamera: [
       { t: 0.0, pos: [0, -1.2, 12], lihat: [0, -1.2, -40] },
       { t: 0.38, pos: [0, -1.6, 6], lihat: [0, -2.5, -40] },
-      { t: 0.82, pos: [0, -5.5, -12], lihat: [0, -9, -40] }
+      { t: 0.8, pos: [0, -4.5, -6], lihat: [0, -7, -40] }
     ],
     efek: { kelopak: 0.9, kilau: 0.6, burung: 0.4 },
     suara: { burung: 0.8, air: 0.2 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.66] } // menembus celah gapura
   },
   {
-    // Fajar di kampung: kamera turun dari langit menuju desa, nama mempelai di langit
-    id: 'kampung', judul: 'Kampung Halaman', durasi: 2.8, waktu: 'fajarKampung',
-    latar: { gambar: 'kampung', z: -40, tinggi: 60, kedalaman: 14, warna: NORMAL },
+    id: 'kampung', judul: 'Kampung Halaman', durasi: 3, waktu: 'fajarKampung',
+    latar: P9('kampung', { kedalaman: 12 }),
     lapisan: [
-      { potongan: 'kuntul', pos: [-18, 4, -28], tinggi: 5,
-        gerak: [{ t: [0.0, 1.0], ke: { x: 16, y: 8 } }] },
-      { potongan: 'kelapa', pos: [-7.5, -26, -8], tinggi: 26, cermin: true,
-        gerak: [{ t: [0.4, 1.0], ke: { y: -22 } }] },
-      { jenis: 'kabut', pos: [6, -6, -20], ukuran: [40, 10], kekuatan: 0.6, gerakAngin: 0.5 },
-      { jenis: 'kabut', pos: [-8, -12, -12], ukuran: [36, 9], kekuatan: 0.5, gerakAngin: -0.4 }
+      { potongan: 'kuntul', pos: [-18, 6, -26], tinggi: 5, gerak: [{ t: [0.0, 1.0], ke: { x: 16, y: 10 } }] },
+      { jenis: 'kabut', pos: [6, -4, -22], ukuran: [40, 10], kekuatan: 0.5, gerakAngin: 0.5 },
+      { jenis: 'sinar', pos: [-8, 14, -30], ukuran: [22, 40], kekuatan: 0.4, rz: 0.35 }
     ],
     kamera: [
-      { t: 0.08, uv: [0.5, 0.16], jarak: 56 },
-      { t: 0.5, uv: [0.47, 0.34], jarak: 52 },
-      { t: 0.92, uv: [0.52, 0.66], jarak: 40 }
+      { t: 0.05, uv: [0.5, 0.2], jarak: 50 },
+      { t: 0.5, uv: [0.5, 0.42], jarak: 52 },
+      { t: 0.88, uv: [0.5, 0.6], jarak: 44 }
     ],
     efek: { kelopak: 0.5, burung: 0.9, kilau: 0.35 },
-    suara: { burung: 1, air: 0.45 },
-    transisi: { jenis: 'tembus', ke: [0.45, 0.8] } // menembus atap rumah desa
+    suara: { burung: 1, air: 0.4 },
+    transisi: { jenis: 'tembus', ke: [0.5, 0.62] } // menembus jalan setapak menuju desa
   },
   {
-    // Jalan desa: kamera berjalan menyusuri lorong kampung, ayat suci muncul
     id: 'desa', judul: 'Jalan Desa', durasi: 3, waktu: 'pagi',
-    latar: { gambar: 'desa', z: -40, tinggi: 46, kedalaman: 14, warna: NORMAL },
+    latar: P9('desa'),
     lapisan: [
-      { potongan: 'daun', pos: [-3.6, -6.5, 4], tinggi: 7,
-        gerak: [{ t: [0.55, 0.85], ke: { x: -6, o: 0 } }] },
-      { potongan: 'daun', pos: [3.6, -6.5, 3], tinggi: 6.5, cermin: true,
-        gerak: [{ t: [0.55, 0.85], ke: { x: 6, o: 0 } }] },
-      { jenis: 'sinar', pos: [5, 8, -26], ukuran: [18, 34], kekuatan: 0.5, rz: -0.3 }
+      { jenis: 'sinar', pos: [0, 6, -32], ukuran: [16, 36], kekuatan: 0.55, rz: 0 }
     ],
     kamera: [
-      { t: 0.06, uv: [0.5, 0.62], jarak: 50 },
-      { t: 0.5, uv: [0.5, 0.64], jarak: 40 },
-      { t: 0.94, uv: [0.5, 0.66], jarak: 26 }
+      { t: 0.05, uv: [0.5, 0.56], jarak: 56 },
+      { t: 0.5, uv: [0.5, 0.55], jarak: 46 },
+      { t: 0.9, uv: [0.5, 0.54], jarak: 36 }
     ],
-    efek: { kelopak: 0.8, kilau: 0.4 },
+    efek: { kelopak: 0.8, kilau: 0.5 },
     suara: { burung: 0.9, air: 0.2 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.56] } // menembus ujung lorong desa
+    transisi: { jenis: 'tembus', ke: [0.5, 0.53] } // menembus cahaya di ujung lorong desa
   },
   {
-    // Kisah 2023: klinik terapi anak tempat mereka bertemu
-    id: 'klinik', judul: 'Awal Bertemu', durasi: 2.8, waktu: 'ruangTerang',
-    latar: { gambar: 'klinik', z: -40, tinggi: 60, kedalaman: 10, warna: HANGAT },
-    lapisan: [
-      { potongan: 'terapis', uv: [0.52, 0.92], maju: 18, tinggi: 15, bayangan: true, rona: 0.2,
-        gerak: [{ t: [0.1, 0.3], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] },
-      { jenis: 'sinar', pos: [-8, 12, -30], ukuran: [20, 40], kekuatan: 0.42, rz: 0.4 }
-    ],
+    id: 'pintuKlinik', judul: 'Kisah Kami', durasi: 2, waktu: 'pagi',
+    latar: P9('pintuKlinik'),
+    lapisan: [],
     kamera: [
-      { t: 0.04, uv: [0.5, 0.36], jarak: 56 },
-      { t: 0.42, fokus: 0, isi: 0.6, naik: 0.38, geser: [-1.2, 0], kabur: 1.6 },
-      { t: 0.94, fokus: 0, isi: 0.66, naik: 0.36, geser: [0.8, 0], kabur: 2.2 }
+      { t: 0.05, uv: [0.5, 0.4], jarak: 56 },
+      { t: 0.9, uv: [0.5, 0.48], jarak: 40 }
     ],
-    efek: { kilau: 0.5, kelopak: 0.2 },
-    suara: { burung: 0.25 },
-    transisi: { jenis: 'tembus', ke: [0.15, 0.3] } // menembus jendela klinik yang terang
+    efek: { kelopak: 0.5, kilau: 0.4 },
+    suara: { burung: 0.7 },
+    transisi: { jenis: 'tembus', ke: [0.5, 0.5] } // masuk lewat pintu klinik yang terbuka
   },
   {
-    // 2023–2026: berjalan bersama di pematang sawah
-    id: 'sawah', judul: 'Saling Menguatkan', durasi: 2.6, waktu: 'siangHangat',
-    latar: { gambar: 'sawah', z: -40, tinggi: 60, kedalaman: 14, warna: NORMAL },
+    id: 'klinik', judul: 'Awal Bertemu', durasi: 3, waktu: 'ruangTerang',
+    latar: P9('klinik'),
     lapisan: [
-      { potongan: 'jalan', uv: [0.48, 0.9], maju: 20, tinggi: 10, bayangan: true, rona: 0.25,
-        gerak: [{ t: [0.04, 0.2], dari: { o: 0 }, ke: { o: 1 } }, { t: [0.2, 1], ke: { y: 3, z: -12, x: 0.6 } }] }
+      { jenis: 'sinar', pos: [0, 10, -30], ukuran: [18, 40], kekuatan: 0.4, rz: 0.15 }
     ],
     kamera: [
-      { t: 0.04, fokus: 0, isi: 0.72, naik: 0.3, kabur: 1.8 },
-      { t: 0.95, fokus: 0, isi: 0.7, naik: 0.3, dz: -6, dy: 2.2, kabur: 1.6 }
+      { t: 0.05, uv: [0.5, 0.45], jarak: 56 },
+      { t: 0.5, uv: [0.56, 0.5], jarak: 50, geser: [-0.8, 0] },
+      { t: 0.9, uv: [0.57, 0.52], jarak: 44, geser: [0.6, 0] }
+    ],
+    efek: { kilau: 0.6, kelopak: 0.25 },
+    suara: { burung: 0.3 },
+    transisi: { jenis: 'tembus', ke: [0.5, 0.3] } // menembus jendela terang di belakang mereka
+  },
+  {
+    id: 'sawah', judul: 'Saling Menguatkan', durasi: 3, waktu: 'siangHangat',
+    latar: P9('sawah', { kedalaman: 12 }),
+    lapisan: [],
+    kamera: [
+      { t: 0.05, uv: [0.5, 0.42], jarak: 56 },
+      { t: 0.5, uv: [0.54, 0.55], jarak: 50 },
+      { t: 0.9, uv: [0.52, 0.46], jarak: 44 }
     ],
     efek: { kelopak: 0.5, burung: 1, kilau: 0.3 },
-    suara: { burung: 1, air: 0.6 },
-    transisi: { jenis: 'tembus', ke: [0.7, 0.22] } // menembus rumah joglo di ujung pematang
+    suara: { burung: 1, air: 0.7 },
+    transisi: { jenis: 'tembus', ke: [0.5, 0.38] } // menembus rumah joglo di ujung pematang
   },
   {
-    // 15 Agustus 2026: lamaran di teras rumah keluarga
-    id: 'lamaran', judul: 'Lamaran', durasi: 2.8, waktu: 'emasSore',
-    latar: { gambar: 'lamaran', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL },
-    lapisan: [
-      { potongan: 'lamaran', uv: [0.5, 0.88], maju: 3, tinggi: 15,
-        gerak: [{ t: [0.12, 0.34], dari: { o: 0, x: -1.5 }, ke: { o: 1, x: 0 } }] }
-    ],
+    id: 'lamaran', judul: 'Lamaran', durasi: 3, waktu: 'emasSore',
+    latar: P9('lamaran'),
+    lapisan: [],
     kamera: [
-      { t: 0.08, uv: [0.5, 0.32], jarak: 54 },
-      { t: 0.5, uv: [0.5, 0.58], jarak: 46 },
-      { t: 0.92, uv: [0.5, 0.66], jarak: 40 }
+      { t: 0.05, uv: [0.5, 0.42], jarak: 56 },
+      { t: 0.5, uv: [0.46, 0.6], jarak: 48, geser: [-0.6, 0] },
+      { t: 0.9, uv: [0.48, 0.6], jarak: 42 }
     ],
-    efek: { kelopak: 0.9, kilau: 0.7 },
+    efek: { kelopak: 1, kilau: 0.8 },
     suara: { burung: 0.4 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.4] } // menembus pintu rumah berhias
+    transisi: { jenis: 'tembus', ke: [0.5, 0.42] } // menembus pintu rumah berhias janur
   },
   {
-    // Menuju halal: alun-alun keraton dengan beringin kembar
-    id: 'alun', judul: 'Menuju Halal', durasi: 2.2, waktu: 'siangCerah',
-    latar: { gambar: 'alun', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL },
+    id: 'alun', judul: 'Menuju Halal', durasi: 2.4, waktu: 'siangCerah',
+    latar: P9('alun'),
     lapisan: [
-      { potongan: 'kuntul', pos: [14, 9, -28], tinggi: 5, cermin: true,
-        gerak: [{ t: [0.0, 1.0], ke: { x: -14, y: 12 } }] }
+      { potongan: 'kuntul', pos: [14, 10, -28], tinggi: 5, cermin: true, gerak: [{ t: [0.0, 1.0], ke: { x: -14, y: 13 } }] }
     ],
     kamera: [
-      { t: 0.08, uv: [0.5, 0.22], jarak: 54 },
-      { t: 0.92, uv: [0.5, 0.48], jarak: 42 }
+      { t: 0.05, uv: [0.5, 0.36], jarak: 56 },
+      { t: 0.9, uv: [0.5, 0.6], jarak: 42 }
     ],
-    efek: { burung: 1, kelopak: 0.5, kilau: 0.4 },
+    efek: { burung: 1, kelopak: 0.5, kilau: 0.5 },
     suara: { burung: 0.8 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.4] } // menembus tajuk beringin
+    transisi: { jenis: 'tembus', ke: [0.5, 0.66] } // menembus gerbang keraton di antara beringin
   },
   {
     id: 'mempelai', judul: 'Mempelai', durasi: 3.2, waktu: 'emasDalam',
@@ -314,89 +297,82 @@ export const BAB = [
       { t: 0.1, uv: [0.5, 0.42], jarak: 52 },
       { t: 0.38, uv: [0.405, 0.4], jarak: 40, geser: [1.2, 0] },
       { t: 0.72, uv: [0.6, 0.42], jarak: 40, geser: [-1.2, 0] },
-      { t: 0.9, uv: [0.52, 0.45], jarak: 46 }
+      { t: 0.9, uv: [0.52, 0.48], jarak: 44 }
     ],
-    efek: { kilau: 0.9, kelopak: 0.3 },
+    efek: { kilau: 0.9, kelopak: 0.4 },
     suara: { burung: 0.2 },
-    transisi: { jenis: 'tembus', ke: [0.53, 0.72] } // menembus genggaman tangan
+    transisi: { jenis: 'tembus', ke: [0.53, 0.72] } // menembus genggaman tangan mereka
   },
   {
-    // Pelaminan: mempelai berdiri di depan gebyok, gong muncul saat hitung mundur
-    id: 'acara', judul: 'Hari Bahagia', durasi: 3.6, waktu: 'emasDalam',
-    latar: { gambar: 'pelaminan', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL },
+    id: 'acara', judul: 'Hari Bahagia', durasi: 3.8, waktu: 'emasDalam',
+    latar: P9('pelaminan'),
     lapisan: [
-      { potongan: 'pelaminan', uv: [0.5, 0.8], maju: 2, tinggi: 13,
-        gerak: [{ t: [0.04, 0.2], dari: { o: 0 }, ke: { o: 1 } }, { t: [0.52, 0.6], ke: { o: 0 } }] },
-      { potongan: 'gong', uv: [0.5, 0.86], maju: 4, tinggi: 11,
+      { potongan: 'gong', uv: [0.5, 0.97], maju: 14, tinggi: 9,
         gerak: [{ t: [0.54, 0.62], dari: { o: 0, y: -1 }, ke: { o: 1, y: 0 } }, { t: [0.76, 0.82], ke: { o: 0 } }] },
-      { jenis: 'sinar', pos: [6, 14, -28], ukuran: [20, 44], kekuatan: 0.4, rz: -0.35 }
+      { jenis: 'sinar', pos: [6, 14, -28], ukuran: [20, 44], kekuatan: 0.35, rz: -0.35 }
     ],
     kamera: [
-      { t: 0.06, uv: [0.5, 0.42], jarak: 56 },
-      { t: 0.3, uv: [0.5, 0.6], jarak: 44, geser: [-1.5, 0] },
-      { t: 0.55, uv: [0.5, 0.62], jarak: 44, geser: [1.5, 0] },
-      { t: 0.75, uv: [0.5, 0.72], jarak: 40 },
-      { t: 0.94, uv: [0.5, 0.36], jarak: 50 }
+      { t: 0.05, uv: [0.5, 0.42], jarak: 56 },
+      { t: 0.3, uv: [0.5, 0.56], jarak: 48, geser: [-1, 0] },
+      { t: 0.55, uv: [0.5, 0.58], jarak: 46, geser: [1, 0] },
+      { t: 0.75, uv: [0.5, 0.62], jarak: 46 },
+      { t: 0.92, uv: [0.5, 0.36], jarak: 50 }
     ],
-    efek: { kelopak: 0.7, kilau: 0.8 },
-    suara: { burung: 0.2 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.4] } // menembus tengah gebyok pelaminan
+    efek: { kelopak: 0.8, kilau: 0.9 },
+    suara: { burung: 0.15 },
+    transisi: { jenis: 'tembus', ke: [0.5, 0.3] } // menembus pintu di balik pelaminan
   },
   {
-    // Galeri: lorong lampion keraton, foto berbingkai emas melayang di sepanjang lorong
-    id: 'galeri', judul: 'Galeri', durasi: 3, waktu: 'lorongSenja',
-    latar: { gambar: 'lorong', z: -100, tinggi: 120, kedalaman: 20, warna: NORMAL },
+    id: 'galeri', judul: 'Galeri', durasi: 3.4, waktu: 'lorongSenja',
+    latar: { gambar: 'lorong', z: -100, tinggi: 120, kedalaman: 18, warna: NORMAL },
     lapisan: [],
-    bingkaiGaleri: { mulaiZ: -6, jarak: 12, lebar: 1.8, air: false },
+    bingkaiGaleri: { mulaiZ: -6, jarak: 11, lebar: 1.6, air: false },
     kamera: [
       { t: 0.08, pos: [0, 0.3, 10], lihat: [0, 0.2, -30] },
       { t: 0.92, pos: [0, 0.3, -58], lihat: [0, 0.2, -100] }
     ],
-    efek: { kelopak: 0.4, lampion: 0.25, kilau: 0.6 },
-    suara: { air: 0.15 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.5] } // menembus ujung lorong lampion
+    efek: { kelopak: 0.4, lampion: 0.2, kilau: 0.7 },
+    suara: { air: 0.1 },
+    transisi: { jenis: 'tembus', ke: [0.5, 0.52] } // menembus ujung lorong yang terbuka ke senja
   },
   {
     id: 'senja', judul: 'Doa & Tanda Kasih', durasi: 3.6, waktu: 'senjaUngu',
-    latar: { gambar: 'teratai', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL },
-    lapisan: [
-      { jenis: 'kabut', pos: [0, -16, -14], ukuran: [50, 9], kekuatan: 0.35, gerakAngin: 0.3 }
-    ],
+    latar: P9('teratai'),
+    lapisan: [],
     kamera: [
-      { t: 0.1, uv: [0.5, 0.3], jarak: 56 },
+      { t: 0.08, uv: [0.5, 0.4], jarak: 56 },
       { t: 0.5, uv: [0.5, 0.5], jarak: 50 },
-      { t: 0.9, uv: [0.5, 0.66], jarak: 42 }
+      { t: 0.9, uv: [0.5, 0.48], jarak: 42 }
     ],
-    efek: { kunang: 1, kilau: 0.3, lampion: 0.12 },
-    suara: { jangkrik: 0.7, air: 0.7 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.1] } // menembus langit senja
+    efek: { kunang: 1, kilau: 0.4, lampion: 0.12, kelopak: 0.3 },
+    suara: { jangkrik: 0.6, air: 0.7 },
+    transisi: { jenis: 'tembus', ke: [0.5, 0.47] } // menembus cahaya pintu paviliun
   },
   {
-    // Penutup: malam penuh lampion, mempelai melepas lampion bersama
-    id: 'penutup', judul: 'Terima Kasih', durasi: 3.4, waktu: 'malam',
-    latar: { gambar: 'malam', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL, samakan: false },
-    lapisan: [
-      { potongan: 'lepasLampion', uv: [0.5, 0.94], maju: 18, tinggi: 14, cahaya: 0.9, bayangan: true, rona: 0.3,
-        gerak: [{ t: [0.06, 0.3], dari: { o: 0, y: -1.5 }, ke: { o: 1, y: 0 } }] }
-    ],
+    // Penutup: mempelai melepas lampion, lalu kamera mengikuti lampion naik ke langit berbintang
+    id: 'penutup', judul: 'Terima Kasih', durasi: 4.2, waktu: 'malam',
+    latar: P9('malam', { samakan: false }),
+    lapisan: [],
     kamera: [
-      { t: 0.04, uv: [0.5, 0.18], jarak: 56 },
-      { t: 0.5, fokus: 0, isi: 0.64, naik: 0.38, kabur: 1.8 },
-      { t: 1.0, fokus: 0, isi: 0.66, naik: 0.4, geser: [0, 0.8], kabur: 2.2 }
+      { t: 0.04, uv: [0.5, 0.5], jarak: 56 },
+      { t: 0.32, uv: [0.45, 0.42], jarak: 46 },
+      { t: 0.62, uv: [0.5, 0.08], jarak: 50 },
+      { t: 1.0, uv: [0.5, -0.18], jarak: 54 }
     ],
-    efek: { lampion: 1, kembangApi: 1, kunang: 0.5, kilau: 0.4 },
-    suara: { jangkrik: 1 },
+    efek: { lampion: 1, kembangApi: 1, kunang: 0.5, kilau: 0.5 },
+    suara: { jangkrik: 0.8 },
     transisi: null
   }
 ];
 
-/* === GALERI ===  Tambah foto: lihat AGENTS.md bagian 4. */
+/* === GALERI ===  Tambah foto: lihat AGENTS.md bagian 4. Foto portrait (9:16) paling cocok. */
 export const GALERI = [
-  { full: 'assets/images/gallery/g01.webp', thumb: 'assets/images/gallery/g01_thumb.webp', w: 1600, h: 893, alt: 'Syaif dan Sasti berbusana pengantin Jawa hitam dan merah di pendopo keraton' },
-  { full: 'assets/images/gallery/g02.webp', thumb: 'assets/images/gallery/g02_thumb.webp', w: 1600, h: 893, alt: 'Syaif dan Sasti bergandengan tangan berbusana beludru biru dan kebaya krem' },
-  { full: 'assets/images/gallery/g03.webp', thumb: 'assets/images/gallery/g03_thumb.webp', w: 1600, h: 893, alt: 'Pendopo joglo dengan lampion menyala di taman keraton saat senja' },
-  { full: 'assets/images/gallery/g04.webp', thumb: 'assets/images/gallery/g04_thumb.webp', w: 1600, h: 893, alt: 'Kompleks istana Jawa berselimut kabut pagi' },
-  { full: 'assets/images/gallery/g05.webp', thumb: 'assets/images/gallery/g05_thumb.webp', w: 1600, h: 893, alt: 'Gapura bentar keraton dengan patung penjaga saat matahari terbenam' }
+  { full: 'assets/images/gallery/g01.webp', thumb: 'assets/images/gallery/g01_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti pertama kali bertemu sebagai terapis anak di ruang terapi sensori' },
+  { full: 'assets/images/gallery/g02.webp', thumb: 'assets/images/gallery/g02_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti berjalan bergandengan di pematang sawah' },
+  { full: 'assets/images/gallery/g03.webp', thumb: 'assets/images/gallery/g03_thumb.webp', w: 1000, h: 1792, alt: 'Syaif berlutut melamar Sasti di teras rumah berhias seserahan' },
+  { full: 'assets/images/gallery/g04.webp', thumb: 'assets/images/gallery/g04_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti berbusana pengantin Jawa di depan gebyok pelaminan' },
+  { full: 'assets/images/gallery/g05.webp', thumb: 'assets/images/gallery/g05_thumb.webp', w: 1000, h: 1792, alt: 'Syaif dan Sasti melepas lampion bersama di bawah langit malam' },
+  { full: 'assets/images/gallery/g06.webp', thumb: 'assets/images/gallery/g06_thumb.webp', w: 1000, h: 1792, alt: 'Kampung halaman Jawa saat fajar dengan gunung dan sawah terasering' },
 ];
 
 /* === DATA ACARA & PENYIMPANAN === */

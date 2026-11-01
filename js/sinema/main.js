@@ -215,7 +215,7 @@ const suara = {
     // Gong dibunyikan sekali saat gunungan terbuka
     muat(SUARA.gong).then((buf) => {
       const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const g = this.ctx.createGain(); g.gain.value = 0.85;
+      const g = this.ctx.createGain(); g.gain.value = SUARA.volumeGong ?? 0.6;
       src.connect(g).connect(this.utama); src.start();
     }).catch(() => {});
     // Suasana alam: diulang tanpa jeda, volume mengikuti bab
@@ -246,7 +246,7 @@ const suara = {
     const t0 = performance.now();
     const langkah = (now) => {
       const k = clamp((now - t0) / 3000);
-      this.musik.volume = this.nyala ? 0.55 * k : 0;
+      this.musik.volume = this.nyala ? (SUARA.volumeMusik ?? 0.6) * k : 0;
       if (k < 1) requestAnimationFrame(langkah);
     };
     requestAnimationFrame(langkah);
@@ -259,7 +259,7 @@ const suara = {
     Object.entries(this.lapisan).forEach(([nama, l]) => {
       const a = (P.b.suara || {})[nama] || 0;
       const b = P.lain ? ((P.lain.suara || {})[nama] || 0) : a;
-      const target = (a + (b - a) * P.campur) * 0.42;
+      const target = (a + (b - a) * P.campur) * (SUARA.volumeSuasana ?? 0.3);
       l.v += (target - l.v) * (1 - Math.exp(-2 * dt));
       l.g.gain.value = l.v;
     });
@@ -270,7 +270,7 @@ const suara = {
     this.tombol.setAttribute('aria-pressed', String(v));
     this.tombol.setAttribute('aria-label', v ? 'Matikan suara' : 'Nyalakan suara');
     if (this.utama) this.utama.gain.value = v ? 1 : 0;
-    if (v) { this.musik.volume = 0.55; this.musik.play().catch(() => {}); } else this.musik.pause();
+    if (v) { this.musik.volume = SUARA.volumeMusik ?? 0.6; this.musik.play().catch(() => {}); } else this.musik.pause();
   },
   alih() { this.setNyala(!this.nyala); }
 };

@@ -100,10 +100,8 @@ Jika data berubah, ubah **di semua tempat** (versi sinematik `index.html` + `js/
 
 ## 5. Musik
 
-- File: `assets/audio/gamelan-kraton.mp3` (96 kbps, dipakai lebih dulu) + `gamelan-kraton.ogg`.
+- Lagu utama: `assets/audio/lagu-utama.mp3` — “When You Tell Me That You Love Me” (Diana Ross), piano cover oleh Riyandi Kusuma, **dipilih & diunggah oleh pemilik** (sumber asli di `bahan web 3d/v3/`). Kredit tampil di bab penutup & footer klasik. Volume di `SUARA.volumeMusik` (`cerita.js`).
 - Efek & suasana (versi sinematik) di `assets/audio/sfx/`: `gong.mp3`, `amb-burung.mp3`, `amb-air.mp3`, `amb-jangkrik.mp3`. Volume suasana diatur per bab lewat properti `suara` di `js/sinema/cerita.js`. Sumber & lisensinya ada di `README.md` bagian Kredit.
-- Sumber: "Gamelan angka 2 Kraton Ngayogyakarta" oleh RTB45, Wikimedia Commons, lisensi **CC BY 4.0**.
-  Rekaman musisi istana Kraton Yogyakarta. **Kredit di footer wajib tetap ada** selama musik ini dipakai.
 - Mengganti musik: taruh file baru di `assets/audio/`, ubah `SUARA.musik` di `js/sinema/cerita.js` dan `ASSETS.music` di `js/config.js`, lalu **perbarui kredit** (bab `penutup` di `index.html` dan footer `klasik.html`).
   Hanya gunakan musik yang lisensinya mengizinkan (milik sendiri, CC BY/CC0, atau sudah berlisensi). Jangan pakai lagu komersial tanpa izin.
 - Musik baru diputar setelah tombol "Buka Undangan" ditekan (aturan autoplay browser). Jangan ubah ini menjadi autoplay.
@@ -190,7 +188,9 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
    `latar: { gambar: 'klinik', z: -40, tinggi: 60, kedalaman: 12, warna: NORMAL }` dan kamera `uv` berjarak 55–75.
    Tokoh diletakkan sebagai `potongan` dengan `pos: [x, y, z]` di antara kamera dan latar (z −10 … +3),
    `tinggi` 4–7, dan `gerak` muncul (`dari: { o: 0, y: … }, ke: { o: 1 }`).
-4. **Peta gambar v2 yang sudah terpasang** (file asli di `bahan web 3d/v2/bahan1|bahan2/`):
+4. **Adegan kini memakai gambar v3** (`bahan web 3d/v3/bahan web baru 11 gambar/` → `assets/scenes/v3/sNN_*.webp`), di mana tokoh sudah tergambar di dalam latar. Peta lama v2 di bawah hanya sebagai arsip.
+
+   **Peta gambar v2 (arsip)** (file asli di `bahan web 3d/v2/bahan1|bahan2/`):
 
    | Bab | Latar | Potongan | File asli (akhiran nama) |
    |---|---|---|---|

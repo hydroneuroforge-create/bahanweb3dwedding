@@ -27,7 +27,7 @@ Dioptimalkan untuk dibuka dari **HP lewat WhatsApp**.
 
 Efek: latar 2.5D dengan peta kedalaman (parallax nyata), langit dinamis (awan, matahari, bintang), kabut,
 berkas sinar, kelopak bunga, kilau emas, kunang-kunang, burung kuntul, bloom, dan transisi kabut/cahaya.
-Suara: gamelan Kraton, gong, kicau burung, gemericik air, dan jangkrik, dengan volume yang berganti mengikuti adegan.
+Suara: lagu piano “When You Tell Me That You Love Me”, gong, kicau burung, gemericik air, dan jangkrik, dengan volume yang berganti mengikuti adegan.
 Kualitas grafis turun otomatis bila HP kewalahan.
 
 ## Struktur file
@@ -76,7 +76,7 @@ GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / root**.
 
 ## Kredit
 
-- Musik: "Gamelan angka 2 Kraton Ngayogyakarta" oleh RTB45, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gamelan_angka_2_Kraton_Ngayogyakarta.ogg), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Lagu: “When You Tell Me That You Love Me” (Diana Ross, ciptaan Albert Hammond & John Bettis), piano cover oleh Riyandi Kusuma — disediakan oleh pemilik undangan.
 - Gong: "Gong GAp (Casa da Musica's Javanese gamelan)" oleh Digitópia Casa da Música, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gong_GAp_(Casa_da_Musica%27s_Javanese_gamelan).ogg), Artistic License 2.0.
 - Kicau burung: "Bourne Woods 2020-04-26 0815a" oleh Robert EA Harvey, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Bourne_Woods_2020-04-26_0815a.mp3), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - Gemericik air: "Shallow small river with stony riverbed" oleh stephan, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Shallow_small_river_with_stony_riverbed.ogg), domain publik.
