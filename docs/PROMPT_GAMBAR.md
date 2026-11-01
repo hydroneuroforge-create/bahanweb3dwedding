@@ -1,5 +1,7 @@
 # Panduan Prompt Gambar BERSAMBUNG — Gemini Nano Banana (versi 3)
 
+> **Ingin langsung pakai?** Buka [`PROMPT_SIAP_SALIN.md`](PROMPT_SIAP_SALIN.md): semua blok sudah digabung, tinggal unggah referensi lalu salin satu kotak prompt per gambar.
+
 Tujuan: semua adegan terasa **satu perjalanan** — satu kampung, satu gaya, cahaya yang berganti wajar dari fajar
 ke malam, dan setiap akhir adegan "menyambung" ke awal adegan berikutnya.
 
