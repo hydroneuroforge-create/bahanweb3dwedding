@@ -292,18 +292,20 @@ export const BAB = [
     ],
     kamera: [
       { t: 0.05, uv: [0.5, 0.36], jarak: 56 },
-      { t: 0.9, uv: [0.5, 0.6], jarak: 42 }
+      { t: 0.5, uv: [0.5, 0.5], jarak: 50 },
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T08
     ],
     efek: { burung: 1, kelopak: 0.5, kilau: 0.5 },
     suara: { burung: 0.8 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.66] } // menembus gerbang keraton di antara beringin
+    transisi: { jenis: 'tembus', ke: [0.5, 0.66] }, // menembus gerbang keraton di antara beringin
+    klip: { src: 'assets/video/transisi/t08.mp4', panjang: 2.6 } // video Flow: alun-alun -> gerbang -> close-up mempelai
   },
   {
     id: 'mempelai', judul: 'Mempelai', durasi: 3.2, waktu: 'emasDalam',
     latar: { gambar: 'ruangEmas', z: -40, tinggi: 46, kedalaman: 12, warna: NORMAL },
     lapisan: [],
     kamera: [
-      { t: 0.1, uv: [0.5, 0.42], jarak: 52 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T08
       { t: 0.38, uv: [0.405, 0.4], jarak: 40, geser: [1.2, 0] },
       { t: 0.72, uv: [0.6, 0.42], jarak: 40, geser: [-1.2, 0] },
       { t: 0.9, uv: [0.52, 0.48], jarak: 44 }
@@ -323,11 +325,12 @@ export const BAB = [
       { t: 0.3, uv: [0.5, 0.5], jarak: 48, geser: [-1, 0] },
       { t: 0.55, uv: [0.5, 0.52], jarak: 46, geser: [1, 0] },
       { t: 0.75, uv: [0.5, 0.52], jarak: 48 },
-      { t: 0.92, uv: [0.5, 0.36], jarak: 50 }
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T10
     ],
     efek: { kelopak: 0.8, kilau: 0.9 },
     suara: { burung: 0.15 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.3] } // menembus pintu di balik pelaminan
+    transisi: { jenis: 'tembus', ke: [0.5, 0.3] }, // menembus pintu di balik pelaminan
+    klip: { src: 'assets/video/transisi/t10.mp4', panjang: 2.6 } // video Flow: pelaminan -> lewat di samping mempelai -> lorong
   },
   {
     id: 'galeri', judul: 'Galeri', durasi: 3.4, waktu: 'lorongSenja',
@@ -335,25 +338,28 @@ export const BAB = [
     lapisan: [],
     bingkaiGaleri: { mulaiZ: -6, jarak: 11, lebar: 1.6, air: false },
     kamera: [
+      // (diganti otomatis oleh bangunGaleri di dunia.js: kamera berhenti di depan tiap foto)
       { t: 0.08, pos: [0, 0.3, 10], lihat: [0, 0.2, -30] },
       { t: 0.92, pos: [0, 0.3, -58], lihat: [0, 0.2, -100] }
     ],
     efek: { kelopak: 0.4, lampion: 0.2, kilau: 0.7 },
     suara: { air: 0.1 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.52] } // menembus ujung lorong yang terbuka ke senja
+    transisi: { jenis: 'tembus', ke: [0.5, 0.52] }, // menembus ujung lorong yang terbuka ke senja
+    klip: { src: 'assets/video/transisi/t11.mp4', panjang: 1.6 } // video Flow: ujung lorong -> kolam teratai senja
   },
   {
     id: 'senja', judul: 'Doa & Tanda Kasih', durasi: 3.6, waktu: 'senjaUngu',
     latar: P9('teratai'),
     lapisan: [],
     kamera: [
-      { t: 0.08, uv: [0.5, 0.4], jarak: 56 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T11
       { t: 0.5, uv: [0.5, 0.5], jarak: 50 },
-      { t: 0.9, uv: [0.5, 0.48], jarak: 42 }
+      { t: 1.0, uv: [0.5, 0.5], jarak: 70 } // = frame awal klip T12
     ],
     efek: { kunang: 1, kilau: 0.4, lampion: 0.12, kelopak: 0.3 },
     suara: { jangkrik: 0.6, air: 0.7 },
-    transisi: { jenis: 'tembus', ke: [0.5, 0.47] } // menembus cahaya pintu paviliun
+    transisi: { jenis: 'tembus', ke: [0.5, 0.47] }, // menembus cahaya pintu paviliun
+    klip: { src: 'assets/video/transisi/t12.mp4', panjang: 2.6 } // video Flow: senja -> malam lampion, mempelai muncul dari balik lampion
   },
   {
     // Penutup: mempelai melepas lampion, lalu kamera mengikuti lampion naik ke langit berbintang
@@ -361,7 +367,7 @@ export const BAB = [
     latar: P9('malam', { samakan: false }),
     lapisan: [],
     kamera: [
-      { t: 0.04, uv: [0.5, 0.5], jarak: 56 },
+      { t: 0.0, uv: [0.5, 0.5], jarak: 70 }, // = frame akhir klip T12
       { t: 0.32, uv: [0.45, 0.42], jarak: 46 },
       { t: 0.62, uv: [0.5, 0.08], jarak: 50 },
       { t: 1.0, uv: [0.5, -0.18], jarak: 54 }

@@ -978,6 +978,10 @@ export class Dunia {
     if (pakaiAir) grup.add(buatAir(this.U, -2.3));
     b.kamera = [];
     const n = GALERI.length;
+    const sebelum = this.bab[b.indeks - 1];
+    // beri ruang untuk kamera masuk/keluar lorong bila bab ini bersambung dengan klip video
+    const tAwal = sebelum && sebelum.klip ? 0.2 : 0.1;
+    const tAkhir = b.klip ? 0.82 : 0.88;
     GALERI.forEach((g, i) => {
       const sisi = i % 2 === 0 ? -1 : 1;
       const z = cfg.mulaiZ - i * cfg.jarak;
@@ -1000,9 +1004,13 @@ export class Dunia {
       this.bingkaiFoto.push(foto, bingkai);
       grup.add(holder);
       // Kamera berhenti sejenak di depan tiap foto
-      const t = 0.1 + (i / Math.max(n - 1, 1)) * 0.78;
+      const t = tAwal + (i / Math.max(n - 1, 1)) * (tAkhir - tAwal);
       b.kamera.push({ t, pos: [x * 0.35, 0.4, z + 6.2], lihat: [x * 1.05, 0.3, z - 1] });
     });
+    // Batas dengan klip video: kamera memperlihatkan lorong tanpa foto di depan agar sama dengan frame klip
+    const zAkhir = cfg.mulaiZ - (n - 1) * cfg.jarak;
+    if (sebelum && sebelum.klip) b.kamera.unshift({ t: 0, pos: [0, 0, 45], lihat: [0, 0, -100] });
+    if (b.klip) b.kamera.push({ t: 1, pos: [0, 0.3, zAkhir - 5], lihat: [0, 0.2, -100] });
     // lampion statis yang mengapung di atas air
     const tLamp = this.tex.potongan.lampion || teksturLampion();
     for (let i = 0; i < 26; i++) {

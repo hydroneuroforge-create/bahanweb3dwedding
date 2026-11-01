@@ -225,11 +225,21 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
 ### Klip transisi video (Google Flow)
 - Prompt & pasangan frame: `docs/PROMPT_TRANSISI_FLOW.md` dan `bahan web 3d/flow-transisi/TNN_*/` (`1_AWAL.jpg`, `2_AKHIR.jpg`).
   Hasil mentah dari Flow diunggah ke `bahan web 3d/flow-transisi/` (tidak dipakai langsung oleh website).
-- Klip siap pakai ada di `assets/video/transisi/tNN.mp4`: 720×1280, H.264, tanpa audio, GOP pendek agar lancar di-seek:
+- Klip siap pakai ada di `assets/video/transisi/tNN.mp4` (720×1280, H.264, tanpa audio, GOP pendek agar lancar di-seek).
+  Selalu olah lewat `tools/olah_klip.py`. Alat ini memotong/membalik/menyambung segmen, mengurangi kedip & bintik AI,
+  dan **menyamakan warna klip dengan render 3D** di kedua batas (koreksi berubah halus dari awal ke akhir klip):
   ```bash
-  ffmpeg -i "bahan web 3d/flow-transisi/T01_xxx.mp4" -vf scale=720:1280 -c:v libx264 -preset slow -crf 27 \
-    -pix_fmt yuv420p -g 4 -keyint_min 4 -sc_threshold 0 -movflags +faststart -an assets/video/transisi/t01.mp4
+  python3 tools/olah_klip.py --segmen "bahan web 3d/flow-transisi/T04A_xxx.mp4:0:7.7" \
+    --segmen "bahan web 3d/flow-transisi/T04B_xxx.mp4:0:8:balik" --silang 0.7 \
+    --acuan-awal batas/t04_awal.png --acuan-akhir batas/t04_akhir.png --crf 27 --keluar assets/video/transisi/t04.mp4
   ```
+  `batas/tNN_awal.png` & `tNN_akhir.png` = screenshot kanvas 3D (360×640, tanpa teks/vinyet/video) tepat di akhir bab asal
+  dan di awal bab tujuan. `--cari-awal`/`--cari-akhir` memotong klip di frame yang paling mirip gambar acuan
+  (dipakai di T11 agar mulai dari ujung lorong galeri).
+  Resep yang dipakai: T01 utuh; T02 = T02A 0–6 + T02B 0–6 dibalik (silang 0,6); T04 = T04A 0–7,7 + T04B 0–8 dibalik (silang 0,7);
+  T08, T10, T12 utuh; T11 `--cari-awal t11_awal.png`.
+- Belum dipasang: T03, T05, T06, T07 (belum ada video). T09 sengaja tidak dipakai: di akhir klip mempelai wanita tidak
+  berhijab, sedangkan di adegan pelaminan berhijab. Buat ulang gambar Mempelai (berhijab), lalu T08 & T09.
 - Bila satu klip first/last frame selalu glitch (posisi kamera dua adegan terlalu berbeda), buat dua klip dengan start frame saja
   yang sama-sama berakhir di benda penutup layar (daun, kabut). Klip B dibalik lalu disambung (`reverse` + `xfade`), seperti `t02.mp4`.
 - Pasang di bab asal: `klip: { src, panjang }` di `cerita.js`. `panjang` = ruang gulir tambahan ≈ 0,3 × durasi video (detik).
