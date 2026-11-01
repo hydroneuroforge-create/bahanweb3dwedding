@@ -54,14 +54,14 @@ Tidak harus 12 sekaligus. Mulai dari 1–2 klip dulu (misalnya T01 dan T05) supa
 
 Prompt:
 ```
-Single continuous shot, no scene cuts. 3D cartoon animation, warm golden dawn. The camera glides slowly forward through the open red-brick Javanese royal gate, passing between the two golden guardian statues, then rises gently above the gate to reveal a wide misty valley: a Javanese village with joglo houses, terraced rice fields, coconut palms and a volcano under a pink sunrise sky. Smooth, graceful, elegant camera motion. No text, no people, no dialogue, no music.
+One single unbroken camera move from the first frame to the last frame. No cuts, no crossfade, no jump. 3D cartoon animation, warm golden dawn. The camera pushes slowly forward between the two golden guardian statues and through the open red-brick Javanese gate. Behind the gate, soft golden morning mist fills the whole view. The camera keeps flying forward and rises up through the mist, and the mist gently parts to reveal, from high above, a wide valley: a Javanese village with joglo houses, terraced rice fields, coconut palms and a volcano under a pink sunrise sky. Very slow, smooth, gimbal-stable motion. No text, no people, no dialogue, no music.
 ```
 
 ## T02 — Kampung → Jalan Desa
 
 Prompt:
 ```
-Single continuous shot, no scene cuts. 3D cartoon animation, soft morning light. The camera descends smoothly from the hilltop view of the Javanese village and glides down along the winding dirt path between the rice terraces, arriving at ground level in a quiet village lane lined with wooden houses, bamboo fences, banana trees and clay pots, sunlight glowing at the end of the lane. Gentle floating dust and mist. No text, no people, no dialogue, no music.
+One single unbroken drone-like camera move from the first frame to the last frame. No cuts, no crossfade, no morphing, no jump. 3D cartoon animation, soft morning light. The camera starts high above the misty Javanese village valley and slowly glides down toward the winding dirt path in the lower center of the frame, between the rice terraces. It keeps descending while following the path as it curves to the right past the red-roofed joglo houses. Close to the ground, the camera banks gently and turns along the curve of the path, and as it passes close by the large green leaves of a banana tree and a frangipani tree, the leaves briefly fill the view. Coming out of the leaves at eye level, the camera has turned to face straight down a quiet village lane: wooden houses and bamboo fences on both sides, clay pots and plants, and warm sunlight glowing at the far end of the lane, the volcano faint in the distance. Very slow, smooth, gimbal-stable motion, the scenery changes continuously and physically, never transforming. No text, no people, no dialogue, no music.
 ```
 
 ## T03 — Jalan Desa → Pintu Klinik
