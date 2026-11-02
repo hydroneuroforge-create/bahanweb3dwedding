@@ -279,6 +279,12 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
 - Partikel (kilau, kunang, lampion, kembang api) dibatasi ukurannya dan memudar bila terlalu dekat kamera. Jangan hapus batas ini:
   tanpa batas, satu partikel di depan lensa bisa menutupi layar dengan warna oranye polos.
 - Semua shader & tekstur diunggah ke GPU saat loading (`siapkanGPU`). Tekstur baru harus lewat `this.tex` agar ikut diunggah.
+- **Jangan pakai `backdrop-filter` atau `filter` (blur, dll.) yang berubah tiap frame** pada elemen yang tampil di atas kanvas 3D
+  saat menggulir (kartu teks, tombol, hitung mundur, judul). Safari iPhone harus menghitung ulang efek itu setiap frame sehingga
+  gulir patah-patah. Pakai latar semi-transparan biasa, dan animasikan hanya `opacity` / `transform`.
+  (`backdrop-filter` hanya boleh di sampul, menu, dan latar dialog, yang tidak tampil saat cerita bergerak.)
+- Kabut, sinar, dan partikel otomatis memudar di batas yang bersambung dengan klip video (`bobotAtmosfer` di `dunia.js`),
+  agar adegan 3D sama dengan frame awal/akhir video. Jangan dihapus.
 
 ### Klip transisi video (Google Flow)
 - Prompt & pasangan frame: `docs/PROMPT_TRANSISI_FLOW.md` dan `bahan web 3d/flow-transisi/TNN_*/` (`1_AWAL.jpg`, `2_AKHIR.jpg`).
@@ -287,10 +293,16 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
   keyframe tiap 6 frame, tanpa audio; total ±48 MB, dimuat dua bab sebelum dibutuhkan).
   Buat ulang semuanya sekaligus: `tools/buat_semua_klip.sh <folder_acuan> [720|540]` (resep tiap klip ada di skrip itu).
   Selama video menutup layar penuh, 3D tidak dirender (`dunia.tertutupKlip`) agar GPU bebas memutar video.
-  Video **diputar** mengikuti gulir, bukan di-seek tiap frame (`klip.kejar` di `main.js`): kecepatan putar = laju gulir
-  + koreksi selisih (0,25–3×), berhenti saat jari berhenti. Gulir mundur / lompatan jauh tetap memakai seek.
-  Laju cerita dibatasi (`SUSUNAN.kecepatanMaks` = 1,8 satuan/detik; di ruang klip maks `kecepatanKlip` = 2,5× laju asli video),
-  sehingga gulir cepat tidak melompati animasi. Jangan hapus batas ini; naikkan angkanya bila terasa terlalu lambat.
+  **Klip DIPUTAR sendiri dengan kecepatan normal, tidak di-scrub mengikuti jari** (`klip` di `main.js`, keputusan pemilik
+  setelah uji di iPhone 15 & 17: seek / ubah `playbackRate` tiap frame membuat Safari iPhone patah-patah). Alurnya:
+  cerita melintasi akhir bab asal ke arah maju → video diputar 1× dari awal, posisi cerita ditahan & mengikuti waktu video →
+  video habis → cerita lanjut di bab tujuan (posisi halaman dimajukan ke ujung ruang klip bila tertinggal).
+  Tamu terus menggulir ke bawah saat video diputar → `playbackRate` diubah **sekali** ke `SUSUNAN.klipCepat` (2×).
+  Tamu menggulir ke atas → video berhenti, cerita kembali ke akhir bab asal. Gulir mundur melewati ruang klip, video belum siap,
+  atau HP menolak memutar video (iPhone Mode Daya Rendah) → `dunia.js` menampilkan campuran dua adegan 3D (`_klipMain` = false).
+  Jangan kembalikan ke cara scrub (seek/ubah kecepatan tiap frame).
+  Laju cerita maksimum `SUSUNAN.kecepatanMaks` (1,8 satuan/detik) agar gulir cepat tidak melompati adegan 3D;
+  `SUSUNAN.responGulir` (3,5) mengatur seberapa cepat cerita menyusul jari (lebih kecil = lebih melayang).
   Selalu olah lewat `tools/olah_klip.py`. Alat ini memotong/membalik/menyambung segmen, mengurangi kedip & bintik AI,
   dan **menyamakan warna klip dengan render 3D** di kedua batas (koreksi berubah halus dari awal ke akhir klip):
   ```bash
@@ -309,8 +321,9 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
   Buat ulang gambar Mempelai (berhijab), lalu T08 & T09. Batas mempelai → acara memakai transisi `tembus`.
 - Bila satu klip first/last frame selalu glitch (posisi kamera dua adegan terlalu berbeda), buat dua klip dengan start frame saja
   yang sama-sama berakhir di benda penutup layar (daun, kabut). Klip B dibalik lalu disambung (`reverse` + `xfade`), seperti `t02.mp4`.
-- Pasang di bab asal: `klip: { src, panjang }` di `cerita.js`. `panjang` = ruang gulir tambahan ≈ 0,3 × durasi video (detik).
-  Video diputar mengikuti gulir (`main.js` → `klip`), diunduh sebagai blob satu bab sebelum dibutuhkan.
-  Bila gagal termuat, `dunia.js` mencampur kedua adegan sebagai cadangan. Transisi `tembus` di bab itu otomatis tidak dipakai.
+- Pasang di bab asal: `klip: { src, panjang: 1.2 }` di `cerita.js`. `panjang` = ruang gulir antara dua bab, dipakai untuk
+  campuran 3D saat gulir mundur / video belum siap (1,2 sudah pas untuk semua klip). Transisi `tembus` di bab itu otomatis tidak dipakai.
+  Video diunduh sebagai blob dua bab sebelum dibutuhkan; hanya klip di sekitar posisi tamu yang dipasang ke `<video>`
+  (iPhone membatasi jumlah video aktif).
 - Kamera di akhir bab asal dan di awal bab tujuan harus memperlihatkan **gambar utuh** (`uv: [0.5, 0.5], jarak: 70`)
   agar sama dengan frame awal/akhir klip.
