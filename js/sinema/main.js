@@ -306,7 +306,7 @@ const klip = {
       d.v.preload = 'auto';
       d.v.src = URL.createObjectURL(await r.blob());
       d.v.load();
-      if (this.terbuka) d.v.play().then(() => d.v.pause()).catch(() => {});
+      if (this.terbuka) d.v.play().then(() => d.v.pause()).catch((e) => this.cekDiblokir(e));
     } catch (err) {
       console.warn('[Undangan] Klip transisi gagal dimuat:', d.b.klip.src, err);
       d.b._klipSiap = false;
@@ -352,8 +352,16 @@ const klip = {
   // Video "mengejar" posisi gulir dengan DIPUTAR (bukan di-seek tiap frame).
   // Pemutaran memakai dekoder video HP sehingga mulus 24 fps; seek tiap frame hanya ±10–15 fps.
   // Maju: kecepatan putar = laju gulir + koreksi selisih. Mundur / lompatan jauh: seek.
+  // HP menolak memutar video tanpa sentuhan (mis. iPhone dalam Mode Daya Rendah): pakai cara lama (seek)
+  cekDiblokir(e) { if (e && e.name === 'NotAllowedError') this.putarDiblokir = true; },
+
   kejar(d, target) {
     const v = d.v;
+    if (this.putarDiblokir) {
+      if (!v.paused) v.pause();
+      if (!v.seeking && Math.abs(v.currentTime - target) > 0.02) v.currentTime = target;
+      return;
+    }
     const now = performance.now();
     const dt = d.tLalu ? Math.min((now - d.tLalu) / 1000, 0.1) : 0;
     // laju target (detik video per detik nyata), dihaluskan
@@ -377,7 +385,7 @@ const klip = {
     if (Math.abs(v.playbackRate - r) > 0.05) v.playbackRate = r;
     if (v.paused && !d.memutar) {
       d.memutar = true;
-      v.play().catch(() => {}).finally(() => { d.memutar = false; });
+      v.play().catch((e) => this.cekDiblokir(e)).finally(() => { d.memutar = false; });
     }
   }
 };
