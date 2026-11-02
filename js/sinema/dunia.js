@@ -1225,8 +1225,11 @@ export class Dunia {
     this.bloom.strength = lerp(A.bloom, Bw.bloom, c);
 
     // Efek partikel
+    // Kabut/sinar/partikel memudar di batas yang bersambung dengan klip video, agar adegan 3D sama dengan
+    // frame awal/akhir video (tidak ada kabut atau kelopak yang tiba-tiba muncul saat video berganti).
+    const wAtmos = this.bobotAtmosfer(b, t);
     JENIS_EFEK.forEach((e) => {
-      const v = lerp((b.efek || {})[e] || 0, P.lain ? ((P.lain.efek || {})[e] || 0) : ((b.efek || {})[e] || 0), c);
+      const v = wAtmos * lerp((b.efek || {})[e] || 0, P.lain ? ((P.lain.efek || {})[e] || 0) : ((b.efek || {})[e] || 0), c);
       const sis = this.partikel[e];
       sis.material.uniforms.uIntensitas.value = damp(sis.material.uniforms.uIntensitas.value, v, 3, dt || 1);
       sis.visible = sis.material.uniforms.uIntensitas.value > 0.01;
@@ -1234,7 +1237,7 @@ export class Dunia {
     this.partikel.burung.material.uniforms.uWarna.value.copy(this.scene.fog.color).lerp(new THREE.Color('#FFFFFF'), 0.7);
 
     // Lapisan bab aktif
-    b.lapisanObj.forEach((o) => this.gerakkanLapisan(o, t));
+    b.lapisanObj.forEach((o) => this.gerakkanLapisan(o, t, wAtmos));
     // Tokoh & objek diberi rona cahaya suasana (matahari + kabut) agar menyatu dengan latar
     this._rona ||= new THREE.Color();
     this._rona.copy(L.uWarnaMatahari.value).lerp(this.scene.fog.color, 0.5);
@@ -1253,7 +1256,7 @@ export class Dunia {
     this.sinarSemua.forEach(({ obj, l }) => {
       if (!obj.parent.visible) return;
       obj.material.color.copy(L.uWarnaMatahari.value);
-      obj.material.opacity = l.kekuatan * (0.8 + 0.2 * Math.sin(this.waktu * 0.6));
+      obj.material.opacity = l.kekuatan * (0.8 + 0.2 * Math.sin(this.waktu * 0.6)) * (obj.parent === b.grup ? wAtmos : 1);
     });
     // Foto galeri memudar saat kamera lewat sangat dekat / sudah melewatinya (tepi bingkai tidak menyapu layar)
     if (b.fotoGaleri) {
@@ -1293,7 +1296,8 @@ export class Dunia {
     // kedua adegan dicampur lembut. Saat video diputar, cukup render satu adegan di bawahnya.
     if (P.klip && P.lain && !P.klip.bab._klipMain) {
       const lain = P.lain;
-      lain.lapisanObj.forEach((o) => this.gerakkanLapisan(o, P.tLain));
+      const wLain = this.bobotAtmosfer(lain, P.tLain);
+      lain.lapisanObj.forEach((o) => this.gerakkanLapisan(o, P.tLain, wLain));
       this.kameraUntuk(lain, P.tLain, this.kameraLain);
       const sesudah = lain.indeks > b.indeks;
       this.tembus = {
@@ -1327,7 +1331,16 @@ export class Dunia {
     cam.rotateZ(Math.sin(this.waktu * 0.27) * 0.006 * napas);
   }
 
-  gerakkanLapisan(o, t) {
+  // 1 = kabut/sinar/partikel penuh. Mendekati batas yang bersambung dengan klip video memudar ke 0.
+  bobotAtmosfer(b, t) {
+    let w = 1;
+    const sebelum = this.bab[b.indeks - 1];
+    if (sebelum && sebelum.klip) w = Math.min(w, smooth(0, 0.22, t));
+    if (b.klip) w = Math.min(w, 1 - smooth(0.78, 1, t));
+    return w;
+  }
+
+  gerakkanLapisan(o, t, wAtmos = 1) {
     const cfg = o.userData.cfg;
     const st = { ...o.userData.dasar };
     const dasar = o.userData.dasar;
@@ -1346,8 +1359,9 @@ export class Dunia {
     o.position.set(st.x, st.y, st.z);
     o.rotation.y = st.ry;
     o.scale.setScalar(st.s);
-    o.material.opacity = st.o;
-    o.visible = st.o > 0.01;
+    const op = cfg.jenis ? st.o * wAtmos : st.o; // kabut & sinar ikut bobot atmosfer
+    o.material.opacity = op;
+    o.visible = op > 0.01;
   }
 
   /* ---------- Loop ---------- */
