@@ -28,7 +28,9 @@ export const SUSUNAN = {
   jarakBab: 150,      // jarak antar bab di ruang 3D
   lebarTransisi: 0.55, // panjang transisi antar bab (satuan gulir, di tiap sisi batas)
   fov: 45,
-  satuanGulir: 0.85   // 1 satuan = 0.85 × tinggi layar
+  satuanGulir: 0.85,  // 1 satuan = 0.85 × tinggi layar
+  kecepatanMaks: 1.8, // laju cerita maksimum (satuan gulir/detik): gulir cepat tidak melompati animasi
+  kecepatanKlip: 2.5  // di video transisi: maks 2,5× kecepatan putar asli
 };
 
 /* === ASET ===

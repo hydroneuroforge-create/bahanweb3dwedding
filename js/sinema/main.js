@@ -288,6 +288,7 @@ const klip = {
       v.muted = true; v.playsInline = true; v.preload = 'none';
       v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
       v.addEventListener('loadeddata', () => { b._klipSiap = true; });
+      v.addEventListener('loadedmetadata', () => { b.klip.detik = v.duration; });
       v.addEventListener('error', () => { b._klipSiap = false; v.remove(); });
       wadah.append(v);
       this.daftar.push({ b, v, dimuat: false, tampil: -1 });
@@ -334,17 +335,50 @@ const klip = {
         d.v.classList.toggle('is-tampil', ob > 0.001);
       }
       if (aktif && d.v.duration) {
-        const target = Math.min(k * d.v.duration, d.v.duration - 0.05);
-        if (!d.v.seeking && Math.abs(d.v.currentTime - target) > 0.02) d.v.currentTime = target;
+        this.kejar(d, Math.min(k * d.v.duration, d.v.duration - 0.05));
         // frame video sudah pernah tampil & menutup layar penuh -> 3D di bawahnya boleh berhenti dirender
         // (selama seek, video tetap menampilkan frame terakhirnya, jadi tidak perlu menunggu readyState)
         if (d.v.readyState >= 2) d.pernahTampil = true;
         if (ob >= 0.999 && d.pernahTampil) tertutup = true;
       } else {
         d.pernahTampil = false;
+        if (!d.v.paused) d.v.pause();
+        d.tLalu = null;
       }
     });
     this.dunia.tertutupKlip = tertutup;
+  },
+
+  // Video "mengejar" posisi gulir dengan DIPUTAR (bukan di-seek tiap frame).
+  // Pemutaran memakai dekoder video HP sehingga mulus 24 fps; seek tiap frame hanya ±10–15 fps.
+  // Maju: kecepatan putar = laju gulir + koreksi selisih. Mundur / lompatan jauh: seek.
+  kejar(d, target) {
+    const v = d.v;
+    const now = performance.now();
+    const dt = d.tLalu ? Math.min((now - d.tLalu) / 1000, 0.1) : 0;
+    // laju target (detik video per detik nyata), dihaluskan
+    const laju = dt > 0 ? (target - d.targetLalu) / dt : 0;
+    d.laju = dt > 0 ? (d.laju || 0) + (laju - (d.laju || 0)) * Math.min(1, dt * 8) : 0;
+    d.tLalu = now; d.targetLalu = target;
+
+    const selisih = target - v.currentTime;
+    if (Math.abs(selisih) > 2.5 || selisih < -0.12) {
+      // lompat jauh (menu) atau gulir mundur: pakai seek
+      if (!v.paused) v.pause();
+      if (!v.seeking && Math.abs(selisih) > 0.03) v.currentTime = target;
+      return;
+    }
+    const rate = Math.max(0, d.laju) + selisih * 3;
+    if (rate < 0.12 && selisih < 0.04) {
+      if (!v.paused) v.pause(); // sudah menyusul & jari berhenti
+      return;
+    }
+    const r = Math.min(Math.max(rate, 0.25), 3);
+    if (Math.abs(v.playbackRate - r) > 0.05) v.playbackRate = r;
+    if (v.paused && !d.memutar) {
+      d.memutar = true;
+      v.play().catch(() => {}).finally(() => { d.memutar = false; });
+    }
   }
 };
 

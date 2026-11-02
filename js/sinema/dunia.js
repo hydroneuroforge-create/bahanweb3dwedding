@@ -1351,7 +1351,14 @@ export class Dunia {
     this._ms = ms;
     this.waktu += dt;
     this.U.waktu.value = this.waktu;
-    this.gulir = damp(this.gulir, this.gulirTarget, this.opsi.kurangiGerak ? 12 : 5.5, dt);
+    const g0 = this.gulir;
+    let g = damp(g0, this.gulirTarget, this.opsi.kurangiGerak ? 12 : 5.5, dt);
+    // Batas kecepatan: gulir cepat tidak melompati animasi; cerita "mengejar" jari dengan laju maksimum
+    if (!this.opsi.kurangiGerak && dt > 0) {
+      const vMaks = this.kecepatanMaks(g0) * dt;
+      g = g0 + clamp(g - g0, -vMaks, vMaks);
+    }
+    this.gulir = g;
     if (Math.abs(this.gulir - this.gulirTarget) < 0.0004) this.gulir = this.gulirTarget;
     this.terapkan(this.gulir, dt);
     this.render();
@@ -1413,6 +1420,17 @@ export class Dunia {
   }
 
   berhenti() { this.jalan = false; this.renderer.setAnimationLoop(null); }
+
+  // Laju gulir maksimum (satuan gulir per detik) di posisi s.
+  // Di ruang klip: maks ±2,5× kecepatan putar asli video, agar video bisa diputar (bukan di-seek) dan tetap mulus.
+  kecepatanMaks(s) {
+    const P = this.posisi;
+    if (P && P.klip) {
+      const k = P.klip.bab.klip;
+      return (k.panjang / (k.detik || 8)) * (SUSUNAN.kecepatanKlip || 2.5);
+    }
+    return SUSUNAN.kecepatanMaks || 1.8;
+  }
 
   /* ---------- API publik ---------- */
   setGulir(s, langsung = false) { this.gulirTarget = clamp(s, 0, this.total); if (langsung) this.gulir = this.gulirTarget; }
