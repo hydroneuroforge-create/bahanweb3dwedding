@@ -37,6 +37,7 @@ Ada **dua versi** undangan dalam satu repo:
 | `assets/audio/` | Musik gamelan + `sfx/` (gong & suara alam) | Lihat bagian 5 |
 | `bahan web 3d/` dan `bahan web 3d/v2/` | **Aset asli resolusi penuh. JANGAN dihapus/diubah.** | Tidak |
 | `docs/PROMPT_GAMBAR.md` | Daftar prompt Nano Banana untuk gambar adegan baru | Ya |
+| `tools/siapkan_deploy.sh` | Menyiapkan folder `_deploy/` (website saja) untuk Cloudflare Pages, lihat bagian 7b | Jangan diubah tanpa diminta |
 
 ---
 
@@ -127,6 +128,56 @@ Jika data berubah, ubah **di semua tempat** (versi sinematik `index.html` + `js/
 3. Tunggu 1–2 menit. URL: `https://hydroneuroforge-create.github.io/bahanweb3dwedding/`.
 4. Semua path di proyek bersifat **relatif** (tanpa `/` di depan). Pertahankan ini agar bekerja di subfolder Pages.
 5. Jika memakai domain sendiri, tambahkan file `CNAME` berisi nama domain, lalu ubah `og:image` di `index.html` menjadi URL absolut agar pratinjau WhatsApp muncul.
+
+### 7b. Deploy sementara ke Cloudflare Pages (pratinjau di HP)
+
+Dipakai pemilik untuk mencoba versi terbaru di HP **sebelum** merge ke `main`. Versi yang di-deploy diambil dari
+branch kerja (saat ini `feature/undangan-sinematik`), **bukan** dari `main`. Deploy ini **mengganti** versi lama
+di project Cloudflare yang sama, sehingga URL tetap sama.
+
+**Aturan:**
+1. **Jangan merge, jangan commit ke `main`, dan jangan mengubah file website** untuk keperluan deploy. Deploy hanya membaca isi branch.
+2. Kredensial Cloudflare (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) hanya lewat environment variable / secret.
+   **Jangan pernah** menulisnya ke file, commit, atau menampilkannya di log/chat. Token cukup berizin *Cloudflare Pages: Edit*.
+3. Yang diunggah **hanya** isi folder `_deploy/` hasil `tools/siapkan_deploy.sh` (website saja).
+   Jangan unggah root repo: `bahan web 3d/`, `tools/`, `docs/`, `.git`, `AGENTS.md` tidak boleh ikut publik.
+4. **Pakai project Cloudflare Pages yang sudah ada** (yang dulu dipakai untuk versi lama). Jangan membuat project baru
+   kecuali pemilik memintanya atau memang belum ada project sama sekali. Jangan menghapus project/deployment lama.
+5. `_deploy/` dan `.wrangler/` sudah di-`.gitignore`. Jangan di-commit.
+
+**Langkah:**
+```bash
+git fetch origin
+git checkout feature/undangan-sinematik
+git pull --ff-only
+git log --oneline -1                  # catat hash commit yang di-deploy
+
+bash tools/siapkan_deploy.sh          # harus berakhir "OK  _deploy siap: ... 11 klip transisi"
+
+npx wrangler@latest pages project list
+# Pilih project undangan yang sudah ada (nama & domain *.pages.dev-nya). Lalu cari branch produksinya:
+npx wrangler@latest pages deployment list --project-name <NAMA_PROJECT>
+# Lihat baris Environment "Production" → kolom Branch (biasanya "main").
+
+npx wrangler@latest pages deploy _deploy --project-name <NAMA_PROJECT> --branch <BRANCH_PRODUKSI> \
+  --commit-hash "$(git rev-parse HEAD)" --commit-message "Pratinjau versi sinematik terbaru" --commit-dirty=true
+```
+- `--branch` **harus sama** dengan branch produksi project, agar URL utama (`https://<NAMA_PROJECT>.pages.dev`) langsung
+  menampilkan versi baru. Branch lain hanya menghasilkan URL pratinjau dan versi lama tetap tampil di URL utama.
+- Cara ini juga berlaku bila project dulu dibuat lewat Git integration (wrangler boleh membuat deployment manual).
+- Jika belum ada project sama sekali: `npx wrangler@latest pages project create undangan-syaif-sasti --production-branch main`, lalu deploy dengan `--branch main`.
+
+**Verifikasi setelah deploy (wajib, laporkan hasilnya ke pemilik):**
+```bash
+URL=https://<NAMA_PROJECT>.pages.dev
+for p in "" klasik.html js/sinema/main.js assets/video/transisi/t01.mp4 assets/video/transisi/t12.mp4 assets/audio/lagu-utama.mp3; do
+  printf '%s  %s\n' "$(curl -s -o /dev/null -w '%{http_code}' "$URL/$p")" "/$p"
+done                                                   # semua harus 200
+curl -s "$URL/js/sinema/main.js" | grep -c tertutupKlip  # harus ≥ 1 (tanda versi terbaru)
+curl -s -o /dev/null -w '%{http_code}\n' "$URL/bahan%20web%203d/"   # harus 404 (bahan mentah tidak ikut)
+```
+Laporkan ke pemilik: URL utama, hash commit yang di-deploy, hasil verifikasi. Ingatkan pemilik membuka URL di HP
+lewat **tab penyamaran / setelah menghapus cache**, karena browser bisa masih menyimpan versi lama.
 
 ---
 
