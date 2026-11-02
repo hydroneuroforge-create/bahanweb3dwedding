@@ -173,7 +173,9 @@ URL=https://<NAMA_PROJECT>.pages.dev
 for p in "" klasik.html js/sinema/main.js assets/video/transisi/t01.mp4 assets/video/transisi/t12.mp4 assets/audio/lagu-utama.mp3; do
   printf '%s  %s\n' "$(curl -s -o /dev/null -w '%{http_code}' "$URL/$p")" "/$p"
 done                                                   # semua harus 200
-curl -s "$URL/js/sinema/main.js" | grep -c tertutupKlip  # harus ≥ 1 (tanda versi terbaru)
+for f in js/sinema/main.js js/sinema/dunia.js js/sinema/cerita.js; do   # harus "SAMA" semua (versi terbaru sudah tayang)
+  curl -s "$URL/$f" | cmp -s - "_deploy/$f" && echo "SAMA  $f" || echo "BEDA  $f"
+done
 curl -s -o /dev/null -w '%{http_code}\n' "$URL/bahan%20web%203d/"   # harus 404 (bahan mentah tidak ikut)
 ```
 Laporkan ke pemilik: URL utama, hash commit yang di-deploy, hasil verifikasi. Ingatkan pemilik membuka URL di HP
