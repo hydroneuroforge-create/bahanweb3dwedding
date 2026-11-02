@@ -285,6 +285,10 @@ Model AI diunduh otomatis (±280 MB, sekali). Pasang dulu: `pip install pillow n
   keyframe tiap 6 frame, tanpa audio; total ±48 MB, dimuat dua bab sebelum dibutuhkan).
   Buat ulang semuanya sekaligus: `tools/buat_semua_klip.sh <folder_acuan> [720|540]` (resep tiap klip ada di skrip itu).
   Selama video menutup layar penuh, 3D tidak dirender (`dunia.tertutupKlip`) agar GPU bebas memutar video.
+  Video **diputar** mengikuti gulir, bukan di-seek tiap frame (`klip.kejar` di `main.js`): kecepatan putar = laju gulir
+  + koreksi selisih (0,25–3×), berhenti saat jari berhenti. Gulir mundur / lompatan jauh tetap memakai seek.
+  Laju cerita dibatasi (`SUSUNAN.kecepatanMaks` = 1,8 satuan/detik; di ruang klip maks `kecepatanKlip` = 2,5× laju asli video),
+  sehingga gulir cepat tidak melompati animasi. Jangan hapus batas ini; naikkan angkanya bila terasa terlalu lambat.
   Selalu olah lewat `tools/olah_klip.py`. Alat ini memotong/membalik/menyambung segmen, mengurangi kedip & bintik AI,
   dan **menyamakan warna klip dengan render 3D** di kedua batas (koreksi berubah halus dari awal ke akhir klip):
   ```bash
