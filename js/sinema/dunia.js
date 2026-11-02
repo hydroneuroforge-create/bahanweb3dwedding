@@ -1121,7 +1121,12 @@ export class Dunia {
     let i = 0;
     while (i < n - 2 && t > K[i + 1].t) i++;
     const u = (t - K[i].t) / (K[i + 1].t - K[i].t);
-    const a = K[Math.max(i - 1, 0)], b1 = K[i], c = K[i + 1], d = K[Math.min(i + 2, n - 1)];
+    const b1 = K[i], c = K[i + 1];
+    let a = K[Math.max(i - 1, 0)], d = K[Math.min(i + 2, n - 1)];
+    // Di batas dengan klip video, kamera melambat sampai diam (bukan berhenti mendadak),
+    // agar gerak 3D menyambung lembut dengan awal/akhir video.
+    if (i === 0 && b.indeks > 0 && this.bab[b.indeks - 1].klip) a = c;
+    if (i + 1 === n - 1 && b.klip) d = b1;
     cr(a.pos, b1.pos, c.pos, d.pos, u, outPos);
     cr(a.lihat, b1.lihat, c.lihat, d.lihat, u, outLihat);
   }
@@ -1352,14 +1357,20 @@ export class Dunia {
     this.waktu += dt;
     this.U.waktu.value = this.waktu;
     const g0 = this.gulir;
-    let g = damp(g0, this.gulirTarget, this.opsi.kurangiGerak ? 12 : 5.5, dt);
-    // Batas kecepatan: gulir cepat tidak melompati animasi; cerita "mengejar" jari dengan laju maksimum
-    if (!this.opsi.kurangiGerak && dt > 0) {
-      const vMaks = this.kecepatanMaks(g0) * dt;
-      g = g0 + clamp(g - g0, -vMaks, vMaks);
+    let g;
+    if (this.opsi.kurangiGerak || !dt) {
+      g = damp(g0, this.gulirTarget, 12, dt);
+    } else {
+      // Cerita bergerak seperti kamera ber-gimbal: laju naik-turun halus tanpa sentakan (redaman kritis),
+      // dibatasi per posisi agar gulir cepat tidak melompati animasi (lihat kecepatanMaks).
+      const vMaks = this.kecepatanMaks(g0);
+      const ingin = clamp((this.gulirTarget - g0) * 5.5, -vMaks, vMaks);
+      this._laju = damp(this._laju || 0, ingin, 22, dt);
+      g = g0 + this._laju * dt;
+      if ((this.gulirTarget - g0) * (this.gulirTarget - g) <= 0) { g = this.gulirTarget; this._laju = 0; }
     }
     this.gulir = g;
-    if (Math.abs(this.gulir - this.gulirTarget) < 0.0004) this.gulir = this.gulirTarget;
+    if (Math.abs(this.gulir - this.gulirTarget) < 0.0004) { this.gulir = this.gulirTarget; this._laju = 0; }
     this.terapkan(this.gulir, dt);
     this.render();
     this.pendengar.forEach((fn) => fn(this.gulir, this.posisi));
@@ -1423,17 +1434,25 @@ export class Dunia {
 
   // Laju gulir maksimum (satuan gulir per detik) di posisi s.
   // Di ruang klip: maks ±2,5× kecepatan putar asli video, agar video bisa diputar (bukan di-seek) dan tetap mulus.
+  // Batas laju turun/naik bertahap selebar SUSUNAN.lunakBatas sebelum & sesudah ruang klip,
+  // sehingga cerita melambat perlahan menjelang video (tidak "mengerem" mendadak di akhir adegan).
   kecepatanMaks(s) {
-    const P = this.posisi;
-    if (P && P.klip) {
-      const k = P.klip.bab.klip;
-      return (k.panjang / (k.detik || 8)) * (SUSUNAN.kecepatanKlip || 2.5);
+    const vBiasa = SUSUNAN.kecepatanMaks || 1.8;
+    const lebar = SUSUNAN.lunakBatas || 0.7;
+    let v = vBiasa;
+    for (const b of this.bab) {
+      if (!b.klip) continue;
+      const a = b.mulai + b.durasi, z = a + b.klip.panjang;
+      if (s < a - lebar || s > z + lebar) continue;
+      const vKlip = (b.klip.panjang / (b.klip.detik || 8)) * (SUSUNAN.kecepatanKlip || 2.5);
+      const w = smooth(a - lebar, a, s) * (1 - smooth(z, z + lebar, s));
+      v = Math.min(v, lerp(vBiasa, vKlip, w));
     }
-    return SUSUNAN.kecepatanMaks || 1.8;
+    return Math.max(v, 0.05);
   }
 
   /* ---------- API publik ---------- */
-  setGulir(s, langsung = false) { this.gulirTarget = clamp(s, 0, this.total); if (langsung) this.gulir = this.gulirTarget; }
+  setGulir(s, langsung = false) { this.gulirTarget = clamp(s, 0, this.total); if (langsung) { this.gulir = this.gulirTarget; this._laju = 0; } }
   padaFrame(fn) { this.pendengar.add(fn); }
   mulaiBab(id) { const b = this.bab.find((x) => x.id === id); return b ? b.mulai : 0; }
 

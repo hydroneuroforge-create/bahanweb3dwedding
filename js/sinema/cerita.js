@@ -30,7 +30,8 @@ export const SUSUNAN = {
   fov: 45,
   satuanGulir: 0.85,  // 1 satuan = 0.85 × tinggi layar
   kecepatanMaks: 1.8, // laju cerita maksimum (satuan gulir/detik): gulir cepat tidak melompati animasi
-  kecepatanKlip: 2.5  // di video transisi: maks 2,5× kecepatan putar asli
+  kecepatanKlip: 2.5, // di video transisi: maks 2,5× kecepatan putar asli
+  lunakBatas: 0.7     // lebar peralihan batas laju menjelang/sesudah video (satuan gulir)
 };
 
 /* === ASET ===
