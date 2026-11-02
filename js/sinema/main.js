@@ -276,117 +276,196 @@ const suara = {
 };
 
 /* ===================== 5b. KLIP TRANSISI (video Google Flow) =====================
-   Video diputar mengikuti gulir di ruang klip antar bab (lihat "klip" di cerita.js).
-   Video dimuat satu bab sebelum dibutuhkan; bila belum siap, dunia.js memakai campuran adegan. */
+   Saat cerita melewati akhir bab yang punya "klip" (lihat cerita.js), video transisi DIPUTAR sendiri
+   dengan kecepatan normal seperti potongan film, lalu cerita berlanjut di bab berikutnya.
+   - Video tidak di-seek / diubah kecepatannya tiap frame: Safari iPhone patah-patah bila begitu.
+   - Tamu terus menggulir ke bawah saat video diputar -> video dipercepat sekali (SUSUNAN.klipCepat).
+   - Tamu menggulir ke atas -> video berhenti, cerita kembali ke akhir bab sebelumnya.
+   - Gulir mundur melewati ruang klip, video belum siap, atau HP menolak memutar video:
+     dunia.js menampilkan peralihan lembut (campuran dua adegan 3D) sebagai gantinya.
+   Video diunduh sekali sebagai blob; hanya klip di sekitar posisi tamu yang dipasang ke <video>. */
 const klip = {
   daftar: [],
+  main: null, // klip yang sedang diputar: { d, posisi, tMulai, tampil, cepat }
   pasang(dunia) {
     const wadah = $('#klip-transisi');
     dunia.bab.forEach((b) => {
       if (!b.klip) return;
       const v = el('video');
-      v.muted = true; v.playsInline = true; v.preload = 'none';
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
       v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
       v.addEventListener('loadeddata', () => { b._klipSiap = true; });
       v.addEventListener('loadedmetadata', () => { b.klip.detik = v.duration; });
-      v.addEventListener('error', () => { b._klipSiap = false; v.remove(); });
+      v.addEventListener('error', () => { if (v.getAttribute('src')) b._klipSiap = false; });
       wadah.append(v);
-      this.daftar.push({ b, v, dimuat: false, tampil: -1 });
+      this.daftar.push({ b, v, blob: null, url: null, memuat: false, gagal: false, macet: 0, keluar: null, opasitas: -1 });
     });
     this.dunia = dunia;
+    dunia.penggerak = (g0, g) => this.kendalikan(g0, g);
     dunia.padaFrame((s, P) => this.perbarui(P));
   },
-  // Video diunduh utuh lalu diputar dari blob: selalu bisa di-seek, apa pun servernya (mis. tanpa Range)
-  async muat(d) {
-    if (d.dimuat) return;
-    d.dimuat = true;
+
+  // Unduh sekali sebagai blob (selalu bisa diputar dari awal, apa pun servernya)
+  async unduh(d) {
+    if (d.blob || d.memuat || d.gagal) return;
+    d.memuat = true;
     try {
       const r = await fetch(d.b.klip.src);
       if (!r.ok) throw new Error(r.status);
-      d.v.preload = 'auto';
-      d.v.src = URL.createObjectURL(await r.blob());
-      d.v.load();
-      if (this.terbuka) d.v.play().then(() => d.v.pause()).catch((e) => this.cekDiblokir(e));
+      d.blob = await r.blob();
     } catch (err) {
+      d.gagal = true;
       console.warn('[Undangan] Klip transisi gagal dimuat:', d.b.klip.src, err);
-      d.b._klipSiap = false;
     }
+    d.memuat = false;
   },
-  // Dipanggil saat tombol "Buka Undangan" diketuk: iOS butuh gestur agar video bisa di-seek
+  pasangSumber(d) {
+    if (!d.blob || d.url) return;
+    d.url = URL.createObjectURL(d.blob);
+    d.v.src = d.url;
+    d.v.load();
+    this.pancing(d);
+  },
+  // iOS baru menyiapkan frame video setelah play(): putar sekejap (tersembunyi) lalu kembali ke awal
+  pancing(d) {
+    if (!this.terbuka || this.putarDiblokir || !d.url) return;
+    d.v.play().then(() => {
+      if (this.main && this.main.d === d) return;
+      d.v.pause();
+      if (d.v.currentTime > 0) d.v.currentTime = 0;
+    }).catch((e) => this.cekDiblokir(e));
+  },
+  lepasSumber(d) {
+    if (!d.url || (this.main && this.main.d === d) || d.keluar) return;
+    d.v.pause();
+    d.v.removeAttribute('src');
+    d.v.load();
+    URL.revokeObjectURL(d.url);
+    d.url = null;
+    d.b._klipSiap = false;
+  },
+  // HP menolak memutar video tanpa sentuhan (mis. iPhone dalam Mode Daya Rendah): pakai peralihan 3D saja
+  cekDiblokir(e) {
+    if (!e || e.name !== 'NotAllowedError') return;
+    this.putarDiblokir = true;
+    if (this.main) this.hentikan(0);
+  },
+  // Dipanggil saat tombol "Buka Undangan" diketuk: gestur ini membuka izin memutar video di iOS
   buka() {
     this.terbuka = true;
     this.daftar.forEach((d) => {
-      if (d.b.indeks <= 1) this.muat(d);
-      d.v.play().then(() => d.v.pause()).catch(() => {});
+      if (d.url) this.pancing(d);
+      else d.v.play().then(() => d.v.pause()).catch(() => {});
     });
   },
+
+  // Dipanggil dunia.js tiap frame sebelum adegan diterapkan; mengembalikan posisi cerita
+  kendalikan(g0, g) {
+    const D = this.dunia;
+    const m = this.main;
+    if (m) {
+      const { b, v } = m.d;
+      const a = b.mulai + b.durasi, p = b.klip.panjang, z = a + p;
+      // lompatan dari luar (menu, tombol ulang): hentikan klip, ikuti posisi baru
+      if (Math.abs(g0 - m.posisi) > 0.02) { this.hentikan(150); return g; }
+      // tamu menggulir kembali ke atas: hentikan, kembali ke akhir bab sebelumnya
+      if (D.gulirTarget < a - 0.2) { this.hentikan(250); return a - 0.0005; }
+      // video tidak juga tampil (macet): batalkan, lanjutkan dengan peralihan 3D
+      if (!m.tampil && performance.now() - m.tMulai > 1500) { m.d.macet++; this.hentikan(0); return g0; }
+      // tamu terus menggulir melewati ujung klip: percepat sekali (bukan tiap frame)
+      if (!m.cepat && D.gulirTarget > z + 0.35) { m.cepat = true; v.playbackRate = SUSUNAN.klipCepat || 2; }
+      const dur = v.duration || b.klip.detik || 8;
+      if (m.tampil && (v.ended || v.currentTime >= dur - 0.04)) return this.selesai();
+      const k = m.tampil ? clamp(v.currentTime / dur) : 0;
+      m.posisi = a + p * Math.min(k, 0.999);
+      return m.posisi;
+    }
+    // memicu: cerita melintasi awal ruang klip ke arah maju
+    if (g > g0 && !this.putarDiblokir && !kurangiGerak) {
+      for (const d of this.daftar) {
+        const a = d.b.mulai + d.b.durasi;
+        if (g0 < a && g >= a && d.url && d.b._klipSiap && d.macet < 2) return this.mulai(d, a);
+      }
+    }
+    return g;
+  },
+
+  mulai(d, a) {
+    const v = d.v;
+    const m = { d, posisi: a, tMulai: performance.now(), tampil: 0, cepat: false };
+    this.main = m;
+    d.keluar = null;
+    d.b._klipMain = true;
+    v.playbackRate = 1;
+    if (v.currentTime > 0.05) v.currentTime = 0;
+    // video baru ditampilkan setelah frame pertamanya benar-benar muncul (tanpa layar kosong)
+    const tandai = () => { if (this.main === m && !m.tampil) m.tampil = performance.now(); };
+    if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(tandai);
+    else v.addEventListener('playing', () => setTimeout(tandai, 40), { once: true });
+    v.play().catch((e) => { this.cekDiblokir(e); if (this.main === m) this.hentikan(0); });
+    return a;
+  },
+
+  selesai() {
+    const m = this.main;
+    const { b } = m.d;
+    const z = b.mulai + b.durasi + b.klip.panjang;
+    this.main = null;
+    b._klipMain = false;
+    m.d.keluar = { t: performance.now(), lama: 120, dari: Math.max(m.d.opasitas, 0) };
+    // posisi halaman tidak boleh tertinggal di belakang ujung klip (agar cerita tidak mundur lagi)
+    if (this.dunia.gulirTarget < z) { window.scrollTo(0, z * gulir.unit); this.dunia.setGulir(z); }
+    return z;
+  },
+
+  hentikan(lama) {
+    const m = this.main;
+    if (!m) return;
+    this.main = null;
+    m.d.b._klipMain = false;
+    m.d.v.pause();
+    m.d.keluar = { t: performance.now(), lama, dari: Math.max(m.d.opasitas, 0) };
+  },
+
   perbarui(P) {
+    const now = performance.now();
     let tertutup = false;
     this.daftar.forEach((d) => {
-      // muat klip bila tamu sudah dekat (dua bab sebelumnya), agar sudah siap saat dibutuhkan
-      if (!d.dimuat && P.i >= d.b.indeks - 2) this.muat(d);
-      const aktif = P.klip && P.klip.bab === d.b && d.b._klipSiap;
-      const k = aktif ? P.klip.k : 0;
-      const o = aktif ? smooth(0, 0.1, k) * (1 - smooth(0.9, 1, k)) : 0;
-      const ob = Math.round(o * 1000) / 1000;
-      if (ob !== d.tampil) {
-        d.tampil = ob;
-        d.v.style.opacity = ob;
-        d.v.classList.toggle('is-tampil', ob > 0.001);
+      // klip diunduh dua bab sebelum dibutuhkan dan dipasang ke <video> satu bab sebelumnya
+      const jarak = d.b.indeks - P.i;
+      if (jarak >= -1 && jarak <= 2) this.unduh(d);
+      if (jarak >= 0 && jarak <= 1) this.pasangSumber(d);
+      else if (jarak < -1 || jarak > 2) this.lepasSumber(d);
+
+      let o = 0;
+      const m = this.main;
+      if (m && m.d === d) {
+        if (m.tampil) {
+          const dur = d.v.duration || d.b.klip.detik || 8;
+          const masuk = clamp((now - m.tampil) / 280);
+          const keluar = clamp((dur - d.v.currentTime) / (0.35 * d.v.playbackRate));
+          o = Math.min(masuk, keluar);
+          // video menutup layar penuh: adegan 3D di bawahnya tidak perlu dirender
+          if (o >= 0.999) tertutup = true;
+        }
+      } else if (d.keluar) {
+        const u = d.keluar.lama > 0 ? clamp((now - d.keluar.t) / d.keluar.lama) : 1;
+        o = d.keluar.dari * (1 - u);
+        if (u >= 1) {
+          d.keluar = null;
+          d.v.pause();
+          d.v.playbackRate = 1;
+          if (d.v.currentTime > 0.05) d.v.currentTime = 0; // siap diputar lagi dari awal
+        }
       }
-      if (aktif && d.v.duration) {
-        this.kejar(d, Math.min(k * d.v.duration, d.v.duration - 0.05));
-        // frame video sudah pernah tampil & menutup layar penuh -> 3D di bawahnya boleh berhenti dirender
-        // (selama seek, video tetap menampilkan frame terakhirnya, jadi tidak perlu menunggu readyState)
-        if (d.v.readyState >= 2) d.pernahTampil = true;
-        if (ob >= 0.999 && d.pernahTampil) tertutup = true;
-      } else {
-        d.pernahTampil = false;
-        if (!d.v.paused) d.v.pause();
-        d.tLalu = null;
+      o = Math.round(o * 1000) / 1000;
+      if (o !== d.opasitas) {
+        d.opasitas = o;
+        d.v.style.opacity = o;
+        d.v.classList.toggle('is-tampil', o > 0.001);
       }
     });
     this.dunia.tertutupKlip = tertutup;
-  },
-
-  // Video "mengejar" posisi gulir dengan DIPUTAR (bukan di-seek tiap frame).
-  // Pemutaran memakai dekoder video HP sehingga mulus 24 fps; seek tiap frame hanya ±10–15 fps.
-  // Maju: kecepatan putar = laju gulir + koreksi selisih. Mundur / lompatan jauh: seek.
-  // HP menolak memutar video tanpa sentuhan (mis. iPhone dalam Mode Daya Rendah): pakai cara lama (seek)
-  cekDiblokir(e) { if (e && e.name === 'NotAllowedError') this.putarDiblokir = true; },
-
-  kejar(d, target) {
-    const v = d.v;
-    if (this.putarDiblokir) {
-      if (!v.paused) v.pause();
-      if (!v.seeking && Math.abs(v.currentTime - target) > 0.02) v.currentTime = target;
-      return;
-    }
-    const now = performance.now();
-    const dt = d.tLalu ? Math.min((now - d.tLalu) / 1000, 0.1) : 0;
-    // laju target (detik video per detik nyata), dihaluskan
-    const laju = dt > 0 ? (target - d.targetLalu) / dt : 0;
-    d.laju = dt > 0 ? (d.laju || 0) + (laju - (d.laju || 0)) * Math.min(1, dt * 8) : 0;
-    d.tLalu = now; d.targetLalu = target;
-
-    const selisih = target - v.currentTime;
-    if (Math.abs(selisih) > 2.5 || selisih < -0.12) {
-      // lompat jauh (menu) atau gulir mundur: pakai seek
-      if (!v.paused) v.pause();
-      if (!v.seeking && Math.abs(selisih) > 0.03) v.currentTime = target;
-      return;
-    }
-    const rate = Math.max(0, d.laju) + selisih * 3;
-    if (rate < 0.12 && selisih < 0.04) {
-      if (!v.paused) v.pause(); // sudah menyusul & jari berhenti
-      return;
-    }
-    const r = Math.min(Math.max(rate, 0.25), 3);
-    if (Math.abs(v.playbackRate - r) > 0.05) v.playbackRate = r;
-    if (v.paused && !d.memutar) {
-      d.memutar = true;
-      v.play().catch((e) => this.cekDiblokir(e)).finally(() => { d.memutar = false; });
-    }
   }
 };
 

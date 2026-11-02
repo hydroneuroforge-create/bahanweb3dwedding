@@ -181,9 +181,8 @@ button { cursor: pointer; }
 .kontrol { position: fixed; top: var(--atas-aman); right: var(--tepi); z-index: 70; display: flex; gap: .5rem; }
 .kontrol__btn {
   display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
-  background: rgba(42, 14, 14, .55); color: var(--gold-light);
+  background: rgba(42, 14, 14, .72); color: var(--gold-light);
   box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .6), 0 6px 18px -6px rgba(0, 0, 0, .5);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   transition: transform .3s var(--ease), box-shadow .3s;
 }
 .kontrol__btn:hover { transform: scale(1.05); box-shadow: inset 0 0 0 1px var(--gold), var(--glow-gold); }
@@ -244,7 +243,9 @@ button { cursor: pointer; }
 .adegan--tengah[data-gaya="naik"] { transform: translate3d(-50%, calc(-50% + (1 - var(--k)) * 46px * var(--arah, -1) * -1), 0); }
 .adegan[data-gaya="zoom"] { transform: translate3d(-50%, 0, 0) scale(calc(.82 + var(--k) * .18)); }
 .adegan--tengah[data-gaya="zoom"] { transform: translate3d(-50%, -50%, 0) scale(calc(.82 + var(--k) * .18)); }
-.adegan[data-gaya="kabur"] { filter: blur(calc((1 - var(--k)) * 10px)); transform: translate3d(-50%, 0, 0) scale(calc(1.06 - var(--k) * .06)); }
+/* "kabur": dulu memakai filter blur yang berubah tiap frame. Safari iPhone harus menggambar ulang blur itu
+   setiap frame sehingga gulir patah-patah. Kini hanya opacity + transform (dikerjakan GPU, ringan). */
+.adegan[data-gaya="kabur"] { transform: translate3d(-50%, calc((1 - var(--k)) * 14px * var(--arah, -1) * -1), 0) scale(calc(1.05 - var(--k) * .05)); }
 .adegan--tengah[data-gaya="kabur"] { transform: translate3d(-50%, -50%, 0); }
 
 /* ===================== 6. KOMPONEN TEKS & KARTU ===================== */
@@ -273,9 +274,9 @@ button { cursor: pointer; }
   border-radius: 6px;
 }
 .kartu--kaca {
-  background: linear-gradient(180deg, rgba(58, 18, 18, .66), rgba(30, 9, 9, .78));
+  /* tanpa backdrop-filter: blur di atas kanvas 3D yang terus bergerak harus dihitung ulang tiap frame (berat di iPhone) */
+  background: linear-gradient(180deg, rgba(58, 18, 18, .86), rgba(30, 9, 9, .92));
   box-shadow: 0 24px 50px -24px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(212, 175, 55, .6), inset 0 0 0 6px rgba(0, 0, 0, 0), inset 0 0 0 7px rgba(212, 175, 55, .25);
-  backdrop-filter: blur(10px) saturate(1.2); -webkit-backdrop-filter: blur(10px) saturate(1.2);
 }
 .kartu--kayu {
   color: var(--cream);
@@ -331,9 +332,9 @@ button { cursor: pointer; }
 .hitung { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; width: 100%; margin-top: .4rem; }
 .hitung__kotak {
   display: grid; justify-items: center; padding: .9rem .2rem .7rem; border-radius: 14px;
-  background: linear-gradient(180deg, rgba(58, 18, 18, .7), rgba(30, 9, 9, .82));
+  background: linear-gradient(180deg, rgba(58, 18, 18, .86), rgba(30, 9, 9, .92));
   box-shadow: inset 0 0 0 1.5px var(--gold), 0 16px 30px -14px rgba(0, 0, 0, .7);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); perspective: 400px;
+  perspective: 400px;
 }
 .hitung__angka {
   font-family: var(--font-display); font-weight: 700; font-size: clamp(1.7rem, 8.5vw, 2.3rem); line-height: 1; font-variant-numeric: tabular-nums;
@@ -344,7 +345,7 @@ button { cursor: pointer; }
 .hitung__label { margin-top: .3rem; font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; }
 .hitung__selesai { font-family: var(--font-accent); font-style: italic; font-size: 1.2rem; color: var(--gold-light); }
 
-.petunjuk-kecil { display: inline-flex; align-items: center; gap: .45rem; padding: .5rem 1rem; border-radius: 999px; font-size: .8rem; background: rgba(42, 14, 14, .6); box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.petunjuk-kecil { display: inline-flex; align-items: center; gap: .45rem; padding: .5rem 1rem; border-radius: 999px; font-size: .8rem; background: rgba(42, 14, 14, .78); box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .6); }
 .petunjuk-kecil svg { width: 16px; height: 16px; color: var(--gold-light); }
 .galeri-akses { display: flex; gap: .4rem; justify-content: center; flex-wrap: wrap; }
 .galeri-akses button { width: 44px; height: 44px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 0 1.5px rgba(212, 175, 55, .8); background: var(--maroon-deep); }

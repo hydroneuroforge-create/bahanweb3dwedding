@@ -1289,9 +1289,9 @@ export class Dunia {
         m: lainSesudah ? P.campur : 1 - P.campur
       };
     }
-    // Ruang klip: bila video belum siap, adegan dicampur pelan sebagai cadangan.
-    // Bila video siap, cukup render satu adegan di bawahnya (hemat GPU).
-    if (P.klip && P.lain && !P.klip.bab._klipSiap) {
+    // Ruang klip tanpa video yang sedang diputar (gulir mundur, video belum siap / ditolak HP):
+    // kedua adegan dicampur lembut. Saat video diputar, cukup render satu adegan di bawahnya.
+    if (P.klip && P.lain && !P.klip.bab._klipMain) {
       const lain = P.lain;
       lain.lapisanObj.forEach((o) => this.gerakkanLapisan(o, P.tLain));
       this.kameraUntuk(lain, P.tLain, this.kameraLain);
@@ -1364,13 +1364,18 @@ export class Dunia {
       // Cerita bergerak seperti kamera ber-gimbal: laju naik-turun halus tanpa sentakan (redaman kritis),
       // dibatasi per posisi agar gulir cepat tidak melompati animasi (lihat kecepatanMaks).
       const vMaks = this.kecepatanMaks(g0);
-      const ingin = clamp((this.gulirTarget - g0) * 5.5, -vMaks, vMaks);
+      const ingin = clamp((this.gulirTarget - g0) * (SUSUNAN.responGulir || 3.5), -vMaks, vMaks);
       this._laju = damp(this._laju || 0, ingin, 22, dt);
       g = g0 + this._laju * dt;
       if ((this.gulirTarget - g0) * (this.gulirTarget - g) <= 0) { g = this.gulirTarget; this._laju = 0; }
     }
+    if (Math.abs(g - this.gulirTarget) < 0.0004) { g = this.gulirTarget; this._laju = 0; }
+    // Pengendali luar (klip video yang sedang diputar, main.js) boleh menahan / menggerakkan posisi cerita
+    if (this.penggerak) {
+      const gp = this.penggerak(g0, g);
+      if (gp !== g) { g = gp; this._laju = 0; }
+    }
     this.gulir = g;
-    if (Math.abs(this.gulir - this.gulirTarget) < 0.0004) { this.gulir = this.gulirTarget; this._laju = 0; }
     this.terapkan(this.gulir, dt);
     this.render();
     this.pendengar.forEach((fn) => fn(this.gulir, this.posisi));
@@ -1434,22 +1439,9 @@ export class Dunia {
 
   // Laju gulir maksimum (satuan gulir per detik) di posisi s.
   // Di ruang klip: maks ±2,5× kecepatan putar asli video, agar video bisa diputar (bukan di-seek) dan tetap mulus.
-  // Batas laju turun/naik bertahap selebar SUSUNAN.lunakBatas sebelum & sesudah ruang klip,
-  // sehingga cerita melambat perlahan menjelang video (tidak "mengerem" mendadak di akhir adegan).
-  kecepatanMaks(s) {
-    const vBiasa = SUSUNAN.kecepatanMaks || 1.8;
-    const lebar = SUSUNAN.lunakBatas || 0.7;
-    let v = vBiasa;
-    for (const b of this.bab) {
-      if (!b.klip) continue;
-      const a = b.mulai + b.durasi, z = a + b.klip.panjang;
-      if (s < a - lebar || s > z + lebar) continue;
-      const vKlip = (b.klip.panjang / (b.klip.detik || 8)) * (SUSUNAN.kecepatanKlip || 2.5);
-      const w = smooth(a - lebar, a, s) * (1 - smooth(z, z + lebar, s));
-      v = Math.min(v, lerp(vBiasa, vKlip, w));
-    }
-    return Math.max(v, 0.05);
-  }
+  // Laju cerita maksimum (satuan gulir per detik). Klip video tidak lagi di-scrub, jadi tidak perlu
+  // diperlambat di sekitar klip (dulu terasa seperti tersendat di akhir adegan).
+  kecepatanMaks() { return SUSUNAN.kecepatanMaks || 1.8; }
 
   /* ---------- API publik ---------- */
   setGulir(s, langsung = false) { this.gulirTarget = clamp(s, 0, this.total); if (langsung) { this.gulir = this.gulirTarget; this._laju = 0; } }

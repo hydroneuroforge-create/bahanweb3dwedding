@@ -30,8 +30,8 @@ export const SUSUNAN = {
   fov: 45,
   satuanGulir: 0.85,  // 1 satuan = 0.85 × tinggi layar
   kecepatanMaks: 1.8, // laju cerita maksimum (satuan gulir/detik): gulir cepat tidak melompati animasi
-  kecepatanKlip: 2.5, // di video transisi: maks 2,5× kecepatan putar asli
-  lunakBatas: 0.7     // lebar peralihan batas laju menjelang/sesudah video (satuan gulir)
+  responGulir: 3.5,   // seberapa cepat cerita menyusul jari (lebih kecil = lebih melayang & halus)
+  klipCepat: 2        // kecepatan video transisi bila tamu terus menggulir saat video diputar
 };
 
 /* === ASET ===
@@ -169,9 +169,10 @@ const P9 = (gambar, extra = {}) => ({ gambar, z: -40, tinggi: 60, kedalaman: 10,
            { t, pos, lihat } -> koordinat langsung.  { t, fokus: N, isi, naik } -> menyorot lapisan ke-N.
    transisi: { jenis: 'tembus', ke: [u, v] } -> kamera menembus titik (u,v) lalu adegan berikutnya mekar dari sana.
              Jenis lain: 'tirai' | 'kabut' | 'cahaya' | 'malam' (jangan dipakai kecuali diminta).
-   klip: { src, panjang } -> video transisi (Google Flow) diputar mengikuti gulir sesudah bab ini.
-             "panjang" = ruang gulir tambahan (satuan gulir), kira-kira 0.3 × durasi video (detik).
-             Bila video gagal/belum termuat, kedua adegan dicampur pelan sebagai cadangan.
+   klip: { src, panjang } -> video transisi (Google Flow) yang DIPUTAR sendiri dengan kecepatan normal saat
+             cerita melewati akhir bab ini ke arah maju (tidak di-scrub mengikuti jari).
+             "panjang" = ruang gulir antara dua bab (satuan gulir), dipakai untuk peralihan 3D saat gulir
+             mundur / video belum siap. 1.2 sudah pas untuk semua klip.
    latar.samakan: false -> kecerahan gambar tidak disamakan (mis. malam).
    efek : kelopak, kilau, kunang, lampion, burung, kembangApi (0..1)
    suara: burung, air, jangkrik (0..1) */
@@ -196,7 +197,7 @@ export const BAB = [
     efek: { kelopak: 0.9, kilau: 0.6, burung: 0.4 },
     suara: { burung: 0.8, air: 0.2 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.66] }, // menembus celah gapura
-    klip: { src: 'assets/video/transisi/t01.mp4', panjang: 2.6 } // video Flow: gapura -> lembah kampung
+    klip: { src: 'assets/video/transisi/t01.mp4', panjang: 1.2 } // video Flow: gapura -> lembah kampung
   },
   {
     id: 'kampung', judul: 'Kampung Halaman', durasi: 3, waktu: 'fajarKampung',
@@ -215,7 +216,7 @@ export const BAB = [
     efek: { kelopak: 0.5, burung: 0.9, kilau: 0.35 },
     suara: { burung: 1, air: 0.4 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.62] }, // menembus jalan setapak menuju desa
-    klip: { src: 'assets/video/transisi/t02.mp4', panjang: 3.4 } // video Flow: turun bukit -> daun pisang -> lorong desa
+    klip: { src: 'assets/video/transisi/t02.mp4', panjang: 1.2 } // video Flow: turun bukit -> daun pisang -> lorong desa
   },
   {
     id: 'desa', judul: 'Jalan Desa', durasi: 3, waktu: 'pagi',
@@ -231,7 +232,7 @@ export const BAB = [
     efek: { kelopak: 0.8, kilau: 0.5 },
     suara: { burung: 0.9, air: 0.2 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.53] }, // menembus cahaya di ujung lorong desa
-    klip: { src: 'assets/video/transisi/t03.mp4', panjang: 2.6 } // video Flow: lorong desa -> cahaya -> rumah joglo klinik
+    klip: { src: 'assets/video/transisi/t03.mp4', panjang: 1.2 } // video Flow: lorong desa -> cahaya -> rumah joglo klinik
   },
   {
     id: 'pintuKlinik', judul: 'Kisah Kami', durasi: 2, waktu: 'pagi',
@@ -245,7 +246,7 @@ export const BAB = [
     efek: { kelopak: 0.5, kilau: 0.4 },
     suara: { burung: 0.7 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.5] }, // masuk lewat pintu klinik yang terbuka
-    klip: { src: 'assets/video/transisi/t04.mp4', panjang: 4.2 } // video Flow: naik tangga -> daun pintu ukir -> ruang klinik
+    klip: { src: 'assets/video/transisi/t04.mp4', panjang: 1.2 } // video Flow: naik tangga -> daun pintu ukir -> ruang klinik
   },
   {
     id: 'klinik', judul: 'Awal Bertemu', durasi: 3, waktu: 'ruangTerang',
@@ -261,7 +262,7 @@ export const BAB = [
     efek: { kilau: 0.6, kelopak: 0.25 },
     suara: { burung: 0.3 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.3] }, // menembus jendela terang di belakang mereka
-    klip: { src: 'assets/video/transisi/t05.mp4', panjang: 2.6 } // video Flow: bergandengan keluar jendela -> pematang sawah
+    klip: { src: 'assets/video/transisi/t05.mp4', panjang: 1.2 } // video Flow: bergandengan keluar jendela -> pematang sawah
   },
   {
     id: 'sawah', judul: 'Saling Menguatkan', durasi: 3, waktu: 'siangHangat',
@@ -275,7 +276,7 @@ export const BAB = [
     efek: { kelopak: 0.5, burung: 1, kilau: 0.3 },
     suara: { burung: 1, air: 0.7 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.38] }, // menembus rumah joglo di ujung pematang
-    klip: { src: 'assets/video/transisi/t06.mp4', panjang: 2.6 } // video Flow: berjalan di pematang -> kilau senja -> lamaran
+    klip: { src: 'assets/video/transisi/t06.mp4', panjang: 1.2 } // video Flow: berjalan di pematang -> kilau senja -> lamaran
   },
   {
     id: 'lamaran', judul: 'Lamaran', durasi: 3, waktu: 'emasSore',
@@ -289,7 +290,7 @@ export const BAB = [
     efek: { kelopak: 1, kilau: 0.8 },
     suara: { burung: 0.4 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.42] }, // menembus pintu rumah berhias janur
-    klip: { src: 'assets/video/transisi/t07.mp4', panjang: 2.6 } // video Flow: naik melewati atap joglo -> alun-alun
+    klip: { src: 'assets/video/transisi/t07.mp4', panjang: 1.2 } // video Flow: naik melewati atap joglo -> alun-alun
   },
   {
     id: 'alun', judul: 'Menuju Halal', durasi: 2.4, waktu: 'siangCerah',
@@ -305,7 +306,7 @@ export const BAB = [
     efek: { burung: 1, kelopak: 0.5, kilau: 0.5 },
     suara: { burung: 0.8 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.66] }, // menembus gerbang keraton di antara beringin
-    klip: { src: 'assets/video/transisi/t08.mp4', panjang: 2.6 } // video Flow: alun-alun -> gerbang -> close-up mempelai
+    klip: { src: 'assets/video/transisi/t08.mp4', panjang: 1.2 } // video Flow: alun-alun -> gerbang -> close-up mempelai
   },
   {
     id: 'mempelai', judul: 'Mempelai', durasi: 3.2, waktu: 'emasDalam',
@@ -337,7 +338,7 @@ export const BAB = [
     efek: { kelopak: 0.8, kilau: 0.9 },
     suara: { burung: 0.15 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.3] }, // menembus pintu di balik pelaminan
-    klip: { src: 'assets/video/transisi/t10.mp4', panjang: 2.6 } // video Flow: pelaminan -> lewat di samping mempelai -> lorong
+    klip: { src: 'assets/video/transisi/t10.mp4', panjang: 1.2 } // video Flow: pelaminan -> lewat di samping mempelai -> lorong
   },
   {
     id: 'galeri', judul: 'Galeri', durasi: 3.4, waktu: 'lorongSenja',
@@ -352,7 +353,7 @@ export const BAB = [
     efek: { kelopak: 0.4, lampion: 0.2, kilau: 0.7 },
     suara: { air: 0.1 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.52] }, // menembus ujung lorong yang terbuka ke senja
-    klip: { src: 'assets/video/transisi/t11.mp4', panjang: 1.6 } // video Flow: ujung lorong -> kolam teratai senja
+    klip: { src: 'assets/video/transisi/t11.mp4', panjang: 1.2 } // video Flow: ujung lorong -> kolam teratai senja
   },
   {
     id: 'senja', judul: 'Doa & Tanda Kasih', durasi: 3.6, waktu: 'senjaUngu',
@@ -366,7 +367,7 @@ export const BAB = [
     efek: { kunang: 1, kilau: 0.4, lampion: 0.12, kelopak: 0.3 },
     suara: { jangkrik: 0.6, air: 0.7 },
     transisi: { jenis: 'tembus', ke: [0.5, 0.47] }, // menembus cahaya pintu paviliun
-    klip: { src: 'assets/video/transisi/t12.mp4', panjang: 2.6 } // video Flow: senja -> malam lampion, mempelai muncul dari balik lampion
+    klip: { src: 'assets/video/transisi/t12.mp4', panjang: 1.2 } // video Flow: senja -> malam lampion, mempelai muncul dari balik lampion
   },
   {
     // Penutup: mempelai melepas lampion, lalu kamera mengikuti lampion naik ke langit berbintang
